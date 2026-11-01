@@ -5,6 +5,7 @@ name: Upstream sync
 # unit tests), then fast-forward master and start the release workflow. A merge conflict or a
 # failed validation opens one issue for that tag instead, and later runs skip the tag until the
 # issue is closed, so nothing broken reaches master and no build minutes are burnt on repeats.
+# Run it by hand under Actions > Upstream sync > Run workflow.
 
 on:
   schedule:
