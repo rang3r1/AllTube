@@ -196,9 +196,17 @@ public class Utils {
         primaryIntent.setData(url);
         secondaryIntent.putExtra(Intent.EXTRA_TEXT, url.toString());
         secondaryIntent.setType("text/plain");
-        Intent chooserIntent = Intent.createChooser(primaryIntent, context.getResources().getText(R.string.share_link));
-        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[] { secondaryIntent });
+        Intent chooserIntent;
+        if (Helpers.isTouchSupported(context)) {
+            // Phones: straight to the share sheet. The VIEW chooser below would first ask "share or open in a browser?".
+            chooserIntent = Intent.createChooser(secondaryIntent, null);
+        } else {
+            chooserIntent = Intent.createChooser(primaryIntent, context.getResources().getText(R.string.share_link));
+            chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[] { secondaryIntent });
+        }
         chooserIntent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
+        // Not a user "leave": keeps the player from dropping into PiP/background mode behind the share sheet.
+        chooserIntent.addFlags(Intent.FLAG_ACTIVITY_NO_USER_ACTION);
         try {
             context.startActivity(chooserIntent);
         } catch (ActivityNotFoundException e) {
@@ -211,7 +219,7 @@ public class Utils {
      * https://www.youtube.com/watch?v=nragduYePsQ&t=193
      */
     public static Uri convertToFullVideoUrl(String videoId, int posSec) {
-        String url = String.format("https://youtu.be/%s?t=%s", videoId, posSec);
+        String url = posSec > 0 ? String.format("https://youtu.be/%s?t=%s", videoId, posSec) : "https://youtu.be/" + videoId;
         return Uri.parse(url);
     }
 

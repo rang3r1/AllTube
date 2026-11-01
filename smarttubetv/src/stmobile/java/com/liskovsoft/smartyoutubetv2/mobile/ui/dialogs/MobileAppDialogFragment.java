@@ -214,8 +214,9 @@ public class MobileAppDialogFragment extends Fragment implements AppDialogView {
             // isSheetDialog() — the same predicate the host activity uses to choose the translucent
             // window — so the card never renders over an opaque window; then refine by rendered row
             // count, which the presenter can't know (a numeric category collapses to one slider row).
-            boolean sheet = mPresenter != null && mPresenter.isSheetDialog()
-                    && mAdapter.getItemCount() > 0 && mAdapter.getItemCount() <= SHEET_MAX_ROWS;
+            // Menus (only buttons, e.g. a video's long-press menu) are sheets at any length, like YouTube.
+            boolean sheet = mPresenter != null && mPresenter.isSheetDialog() && mAdapter.getItemCount() > 0
+                    && (mAdapter.getItemCount() <= SHEET_MAX_ROWS || mPresenter.isMenuDialog());
             applyPresentation(sheet);
         }
     }
@@ -238,6 +239,8 @@ public class MobileAppDialogFragment extends Fragment implements AppDialogView {
         if (sheet) {
             contentLp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
             contentLp.gravity = Gravity.BOTTOM;
+            // A long menu scrolls inside the card instead of filling the whole screen.
+            contentLp.topMargin = mRootFrame.getResources().getDisplayMetrics().heightPixels / 5;
             mContent.setBackgroundResource(R.drawable.mobile_sheet_bg);
             mContent.setClickable(true); // swallow taps on the card so they don't dismiss
 
@@ -254,6 +257,7 @@ public class MobileAppDialogFragment extends Fragment implements AppDialogView {
         } else {
             contentLp.height = ViewGroup.LayoutParams.MATCH_PARENT;
             contentLp.gravity = Gravity.TOP;
+            contentLp.topMargin = 0;
             mContent.setBackgroundResource(R.color.mobile_background);
             mContent.setClickable(false);
 

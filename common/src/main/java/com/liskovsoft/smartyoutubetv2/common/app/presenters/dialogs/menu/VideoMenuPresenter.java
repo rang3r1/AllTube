@@ -248,7 +248,9 @@ public class VideoMenuPresenter extends BaseMenuPresenter {
         mDialogPresenter.appendSingleButton(
                 UiOptionItem.from(
                         getContext().getString(R.string.dialog_add_to_playlist),
-                        optionItem -> AppDialogUtil.showAddToPlaylistDialog(getContext(), mVideo, mCallback)
+                        // Phones: one "save to playlist" entry, with "new playlist" inside the dialog.
+                        optionItem -> AppDialogUtil.showAddToPlaylistDialog(getContext(), mVideo, mCallback,
+                                Helpers.isTouchSupported(getContext()) ? () -> showCreatePlaylistDialog(mVideo) : null)
                 ));
     }
 

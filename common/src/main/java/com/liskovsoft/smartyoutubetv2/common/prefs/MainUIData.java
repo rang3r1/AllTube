@@ -19,6 +19,7 @@ import java.util.List;
 
 public class MainUIData extends DataChangeBase implements ProfileChangeListener {
     private static final String MAIN_UI_DATA = "main_ui_data2";
+    private static final String PHONE_MENU_DEFAULTS_APPLIED = "phone_menu_defaults_applied";
     public static final int CARD_PREVIEW_DISABLED = 0;
     public static final int CARD_PREVIEW_MUTED = 1;
     public static final int CARD_PREVIEW_FULL = 2;
@@ -468,6 +469,16 @@ public class MainUIData extends DataChangeBase implements ProfileChangeListener 
                     mMenuItems |= menuItem;
                 }
             }
+        }
+
+        // Phones, once: a phone-style video menu (TV keeps upstream's defaults). Share and Watch later
+        // in; "Add to new playlist" lives in the playlist dialog instead.
+        // Written straight away: a delayed write would be lost on the next restoreState().
+        if (Helpers.isTouchSupported(mContext) && !mPrefs.getBoolean(PHONE_MENU_DEFAULTS_APPLIED, false)) {
+            mMenuItems |= MENU_ITEM_SHARE_LINK | MENU_ITEM_ADD_TO_WATCH_LATER;
+            mMenuItems &= ~MENU_ITEM_ADD_TO_NEW_PLAYLIST;
+            persistStateInt();
+            mPrefs.putBoolean(PHONE_MENU_DEFAULTS_APPLIED, true);
         }
 
         for (ContextMenuProvider provider : new ContextMenuManager(mContext).getProviders()) {

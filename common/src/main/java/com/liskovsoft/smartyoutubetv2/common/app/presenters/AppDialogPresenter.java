@@ -266,7 +266,28 @@ public class AppDialogPresenter extends BasePresenter<AppDialogView> {
      * to agree that "card ⇒ translucent"; an over-translucent full-screen dialog just paints its
      * opaque content over the transparent window, so erring wide here is harmless.
      */
+    /**
+     * A plain menu: nothing but single buttons (context menu, share). Phones show it as a bottom sheet.
+     */
+    public boolean isMenuDialog() {
+        if (mBackupCategories == null || mBackupCategories.isEmpty()) {
+            return false;
+        }
+
+        for (OptionCategory category : mBackupCategories) {
+            if (category == null || category.type != OptionCategory.TYPE_SINGLE_BUTTON) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public boolean isSheetDialog() {
+        if (isMenuDialog()) {
+            return true;
+        }
+
         if (!mBackupIsExpandable || mBackupCategories == null || mBackupCategories.size() != 1) {
             return false;
         }

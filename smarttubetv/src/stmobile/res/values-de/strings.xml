@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Deutsche Texte der Handy-Version (stmobile). Englische Vorlage: values/strings.xml. -->
+    <string name="mobile_signin_instructions">Tippe unten auf „Weiter“. In der App öffnet sich ein Browser: Melde dich bei deinem Google-Konto an, prüfe, ob der Code übereinstimmt, und tippe auf „Zulassen“. Kehre dann hierher zurück; dieser Bildschirm schließt sich, sobald Google die Anmeldung bestätigt.</string>
+    <string name="mobile_signin_code_label">Dein Anmeldecode</string>
+    <string name="mobile_signin_continue">Im Browser fortfahren</string>
+    <string name="mobile_signin_done_return">Fertig? Zurück zur App</string>
+    <string name="mobile_signin_error_title">Anmeldung fehlgeschlagen</string>
+    <string name="mobile_signin_retry">Erneut anmelden</string>
+    <string name="mobile_search_hint">YouTube durchsuchen</string>
+    <string name="mobile_account_hint">Konto wechseln</string>
+    <string name="mobile_search_no_results">Keine Ergebnisse gefunden.</string>
+    <string name="mobile_search_voice">Sprachsuche</string>
+    <string name="mobile_search_voice_prompt">Sprich, um zu suchen</string>
+    <string name="mobile_search_voice_unavailable">Die Sprachsuche ist auf diesem Gerät nicht verfügbar.</string>
+
+    <string name="mobile_about_title">Über AllTube</string>
+    <string name="mobile_about_drawer_entry">Über AllTube</string>
+    <string name="mobile_about_tagline">Handy- und Tablet-Fork von SmartTube</string>
+    <string name="mobile_about_version">Version %1$s</string>
+    <string name="mobile_about_body">AllTube ist ein privater Build auf Basis von SmarterTube von CodeSculptor, dem Handy- und Tablet-Fork von SmartTube von yuliskov. Der YouTube-Client stammt von SmartTube und wird mit jeder SmartTube-Version übernommen.\n\nLizenz: MIT, wie das Original.</string>
+    <string name="mobile_about_link_upstream">Original: github.com/yuliskov/SmartTube</string>
+    <string name="mobile_about_link_fork">Quellcode: github.com/rang3r1/AllTube</string>
+    <string name="mobile_about_check_updates">Nach Updates suchen</string>
+    <string name="mobile_about_checking">Wird geprüft…</string>
+    <string name="mobile_about_up_to_date">Du bist auf dem neuesten Stand (%1$s).</string>
+    <string name="mobile_about_update_available">Update verfügbar: %1$s</string>
+    <string name="mobile_about_no_asset">Ein Update ist verfügbar, aber keine APK passt zu diesem Gerät. Öffne die Release-Seite und wähle selbst eine aus.</string>
+    <string name="mobile_about_check_failed">Die Update-Suche ist fehlgeschlagen. Prüfe deine Verbindung und versuche es erneut.</string>
+    <string name="mobile_about_open_releases">Releases öffnen</string>
+    <string name="mobile_about_download">APK herunterladen</string>
+    <string name="mobile_whats_new_title">Neu in %1$s</string>
+    <string name="mobile_whats_new_full_notes">Versionshinweise</string>
+    <string name="mobile_update_notice">AllTube %1$s ist verfügbar</string>
+    <string name="mobile_update_notice_view">Ansehen</string>
+    <string name="mobile_update_details_title">Update verfügbar: %1$s</string>
+    <string name="mobile_update_details_no_notes">Eine neuere Version von AllTube ist verfügbar.</string>
+    <string name="mobile_update_later">Später</string>
+
+    <string name="mobile_theme_title">Design</string>
+    <string name="mobile_theme_option_system">Wie System</string>
+    <string name="mobile_theme_option_light">Hell</string>
+    <string name="mobile_theme_option_dark">Dunkel</string>
+
+    <string name="mobile_player_style_title">Player-Stil</string>
+    <string name="mobile_player_style_classic">Klassisch: Bedienung wie in SmartTube</string>
+    <string name="mobile_player_style_modern">Modern: Bedienung wie auf dem Handy üblich</string>
+    <string name="mobile_player_style_tap_to_pause">Tippen pausiert: modern, Tippen aufs Video pausiert</string>
+    <string name="mobile_player_previous">Vorheriges Video</string>
+    <string name="mobile_player_play_pause">Abspielen oder pausieren</string>
+    <string name="mobile_player_next">Nächstes Video</string>
+    <string name="mobile_player_collapse">Player schließen</string>
+    <string name="mobile_player_captions">Untertitel</string>
+    <string name="mobile_player_settings">Player-Einstellungen</string>
+    <string name="mobile_app_settings">App-Einstellungen</string>
+    <string name="mobile_player_fullscreen">Vollbild</string>
+    <string name="mobile_player_exit_fullscreen">Vollbild beenden</string>
+    <string name="mobile_player_like">Mag ich</string>
+    <string name="mobile_player_dislike">Mag ich nicht</string>
+    <string name="mobile_player_comments">Kommentare</string>
+    <string name="mobile_player_save">In Playlist speichern</string>
+    <string name="mobile_player_share">Teilen</string>
+    <string name="mobile_share_link_start_at">Link teilen (ab %1$s)</string>
+    <string name="mobile_cast_to_tv">Auf dem Fernseher abspielen…</string>
+    <string name="mobile_cast_enter_code">Öffne auf dem Fernseher YouTube oder SmartTube → Einstellungen → Mit TV-Code verknüpfen und gib den angezeigten Code ein.</string>
+    <string name="mobile_cast_sent">Läuft auf %1$s</string>
+    <string name="mobile_cast_waking">YouTube wird auf %1$s geöffnet…</string>
+    <string name="mobile_cast_failed">Der Fernseher ist nicht erreichbar. Wenn das öfter passiert, verknüpfe ihn erneut mit einem neuen TV-Code.</string>
+    <string name="mobile_cast_choose_tv">Fernseher wählen…</string>
+    <string name="mobile_cast_stop">Übertragung beenden</string>
+    <string name="mobile_cast_searching">Suche nach Fernsehern…</string>
+    <string name="mobile_cast_use_code">Mit TV-Code verknüpfen…</string>
+    <string name="mobile_cast_pair_failed">Verknüpfen fehlgeschlagen. Prüfe den TV-Code.</string>
+    <string name="mobile_player_more">Mehr</string>
+    <string name="mobile_player_back_to_settings">‹  Player-Einstellungen</string>
+    <string name="mobile_player_more_videos">Weitere Videos</string>
+    <string name="mobile_player_save_short">Speichern</string>
+    <string name="mobile_player_queue">Warteschlange</string>
+    <!-- Overrides common's "Add/remove from playlist": on phones it is one entry that also offers a new playlist. -->
+    <string name="dialog_add_to_playlist">In Playlist speichern</string>
+    <string name="mobile_back">Zurück</string>
+    <string name="mobile_nav_you">Du</string>
+    <string name="mobile_account">Konto</string>
+    <string name="mobile_my_channel">Mein Kanal</string>
+    <string name="mobile_no_playlists">Noch keine Playlists</string>
+
+    <string name="mobile_swipe_gestures_title">Wischgesten</string>
+    <string name="mobile_swipe_gestures_on">An: im Querformat hoch/runter wischen für Lautstärke (rechts) und Helligkeit (links)</string>
+    <string name="mobile_swipe_gestures_volume_only">Nur Lautstärke: im Querformat rechts hoch/runter wischen; die linke Seite bleibt frei</string>
+    <string name="mobile_swipe_gestures_off">Aus</string>
+
+    <string name="notification_bell">Benachrichtigungen</string>
+    <string name="channel_avatar">Kanalbild</string>
+
+    <string name="mobile_notifications_title">Upload-Benachrichtigungen</string>
+    <string name="mobile_notifications_summary">Benachrichtigen, wenn abonnierte Kanäle hochladen</string>
+    <string name="mobile_notifications_option_on">An</string>
+    <string name="mobile_notifications_option_off">Aus</string>
+    <string name="mobile_notifications_channel_name">Neue Uploads</string>
+    <string name="mobile_notifications_prompt_title">Bei neuen Uploads benachrichtigen?</string>
+    <string name="mobile_notifications_prompt_message">AllTube kann deine Abos im Hintergrund prüfen und dich benachrichtigen, wenn ein Kanal, dem du folgst, etwas hochlädt. Du kannst das später unter Einstellungen → Upload-Benachrichtigungen ändern.</string>
+    <string name="mobile_notifications_prompt_yes">Einschalten</string>
+    <string name="mobile_notifications_prompt_no">Nicht jetzt</string>
+    <string name="mobile_uploads_summary_title">Neue Uploads</string>
+    <string name="mobile_uploads_summary_text">%1$d neue(s) Video(s) aus deinen Abos</string>
+    <string name="mobile_uploads_new_video">Neues Video</string>
+
+    <string name="mobile_stats_title">Anonyme Statistik</string>
+    <string name="mobile_stats_prompt_title">AllTube verbessern helfen?</string>
+    <string name="mobile_stats_details">AllTube kann dem Entwickler senden:\n\n• eine anonyme Zählung „App heute benutzt“, höchstens einmal am Tag\n• Absturzberichte (nur Code-Stellen)\n\nJeweils nur mit App- und Android-Version (Absturzberichte zusätzlich mit dem Handymodell).\n\nNie gesendet: dein Konto, Videos, Kanäle, Suchen oder eine ID, über die man dich erkennen könnte.\n\nDu kannst das jederzeit unter Einstellungen → Anonyme Statistik ändern.</string>
+    <string name="mobile_stats_prompt_yes">Gerne</string>
+    <string name="mobile_stats_prompt_no">Nein danke</string>
+    <string name="mobile_stats_whats_sent">Was wird gesendet?</string>
+    <string name="mobile_stats_crash_title">AllTube ist beim letzten Mal abgestürzt</string>
+    <string name="mobile_stats_crash_message">Einen anonymen Absturzbericht senden? Er enthält nur Code-Stellen, App- und Android-Version und das Handymodell, keine Konto-, Video- oder Suchdaten.</string>
+    <string name="mobile_stats_crash_send">Senden</string>
+    <string name="mobile_stats_crash_discard">Nicht senden</string>
+
+    <string name="mobile_channel_search_hint">In diesem Kanal suchen</string>
+    <string name="mobile_channel_search_close">Suche schließen</string>
+    <string name="mobile_channel_search_tab">Suche: %1$s</string>
+
+    <string name="media_notification_previous">Zurück</string>
+    <string name="media_notification_play">Abspielen</string>
+    <string name="media_notification_pause">Pause</string>
+    <string name="media_notification_next">Weiter</string>
+
+    <string name="mobile_zoom_fit">Original</string>
+</resources>

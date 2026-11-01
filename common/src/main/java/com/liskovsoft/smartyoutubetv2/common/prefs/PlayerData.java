@@ -29,6 +29,7 @@ import java.util.Map;
 
 public class PlayerData extends DataChangeBase implements PlayerConstants, ProfileChangeListener {
     private static final String VIDEO_PLAYER_DATA = "video_player_data";
+    private static final String PHONE_DEFAULTS_APPLIED = "phone_player_defaults_applied";
     public static final int OK_ONLY_UI = 0;
     public static final int OK_UI_AND_PAUSE = 1;
     public static final int OK_ONLY_PAUSE = 2;
@@ -861,6 +862,18 @@ public class PlayerData extends DataChangeBase implements PlayerConstants, Profi
 
         if (mSubtitleStyleIndex >= mSubtitleStyles.size()) {
             mSubtitleStyleIndex = yellowOnSemiBgSubIdx;
+        }
+
+        // Phones, once: original audio (the system language makes YouTube play auto-dubbed tracks)
+        // and picture-in-picture on Home/Back. Written straight away: a delayed write would be lost
+        // on the next restoreState().
+        if (Helpers.isTouchSupported(mPrefs.getContext()) && !mPrefs.getBoolean(PHONE_DEFAULTS_APPLIED, false)) {
+            mAudioLanguage = "";
+            if (Helpers.isPictureInPictureSupported(mPrefs.getContext())) {
+                mBackgroundMode = BACKGROUND_MODE_PIP;
+            }
+            persistStateInt();
+            mPrefs.putBoolean(PHONE_DEFAULTS_APPLIED, true);
         }
     }
 

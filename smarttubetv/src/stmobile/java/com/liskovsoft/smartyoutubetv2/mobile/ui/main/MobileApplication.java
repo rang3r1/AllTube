@@ -17,12 +17,10 @@ import com.liskovsoft.smartyoutubetv2.common.app.views.SplashView;
 import com.liskovsoft.smartyoutubetv2.common.app.views.ViewManager;
 import com.liskovsoft.smartyoutubetv2.common.app.views.WebBrowserView;
 import com.liskovsoft.mediaserviceinterfaces.data.MediaGroup;
-import com.liskovsoft.smartyoutubetv2.common.app.models.playback.manager.PlayerConstants;
 import com.liskovsoft.smartyoutubetv2.common.app.presenters.BrowsePresenter;
 import com.liskovsoft.smartyoutubetv2.common.app.presenters.service.SidebarService;
 import com.liskovsoft.smartyoutubetv2.common.app.presenters.settings.GeneralSettingsPresenter;
 import com.liskovsoft.smartyoutubetv2.common.prefs.AppPrefs;
-import com.liskovsoft.smartyoutubetv2.common.prefs.PlayerData;
 import com.liskovsoft.smartyoutubetv2.common.prefs.PlayerTweaksData;
 import com.liskovsoft.smartyoutubetv2.mobile.ui.browse.MobileBrowseActivity;
 import com.liskovsoft.smartyoutubetv2.mobile.ui.channel.MobileChannelActivity;
@@ -111,27 +109,11 @@ public class MobileApplication extends MainApplication {
         choosePlayerStyleOnce();
         hideScreenDimmingButtonOnce();
         keepVideoSizeUnderDialogsOnce();
-        defaultBackgroundPlaybackOnce();
 
         // Ticking a context-menu item in Settings > General just enables it (in its default slot)
         // instead of popping a "Position of …" picker after every tick — a TV-remote flow that
         // reads as broken on a touchscreen. Reordering stays under "Context menu sorting".
         GeneralSettingsPresenter.sAskMenuItemPosition = false;
-    }
-
-    /**
-     * Default phones to background audio playback. Upstream defaults to BACKGROUND_MODE_DEFAULT,
-     * which releases the player when the screen turns off — so locking the phone stops playback
-     * and no lockscreen media controls appear. Phone users expect audio to keep playing, so we set
-     * BACKGROUND_MODE_SOUND once. Done once so a user who deliberately changes it keeps their
-     * choice. stmobile-only; shared common code is untouched, keeping the fork upstream-mergeable.
-     */
-    private void defaultBackgroundPlaybackOnce() {
-        SharedPreferences prefs = getSharedPreferences("mobile_player_prefs", MODE_PRIVATE);
-        if (!prefs.getBoolean("background_sound_defaulted", false)) {
-            PlayerData.instance(this).setBackgroundMode(PlayerConstants.BACKGROUND_MODE_SOUND);
-            prefs.edit().putBoolean("background_sound_defaulted", true).apply();
-        }
     }
 
     /**
@@ -161,6 +143,7 @@ public class MobileApplication extends MainApplication {
             return;
         }
         SharedPreferences prefs = getSharedPreferences("mobile_player_prefs", MODE_PRIVATE);
+        // "background_sound_defaulted": written by versions before PlayerData's phone defaults.
         boolean existingInstall = prefs.contains("background_sound_defaulted")
                 || prefs.contains("screen_dimming_hidden");
         MobilePlayerStylePrefs.setStyle(this, existingInstall

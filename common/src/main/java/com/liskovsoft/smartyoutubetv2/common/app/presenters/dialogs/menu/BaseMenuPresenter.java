@@ -354,7 +354,7 @@ public abstract class BaseMenuPresenter extends BasePresenter<Void> {
                 ));
     }
 
-    private void showCreatePlaylistDialog(Video video) {
+    protected void showCreatePlaylistDialog(Video video) {
         closeDialog();
         SimpleEditDialog.show(
                 getContext(),

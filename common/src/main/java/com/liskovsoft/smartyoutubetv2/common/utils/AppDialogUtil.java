@@ -1066,6 +1066,13 @@ public class AppDialogUtil {
     }
 
     public static void showAddToPlaylistDialog(Context context, Video video, VideoMenuCallback callback) {
+        showAddToPlaylistDialog(context, video, callback, (Runnable) null);
+    }
+
+    /**
+     * @param onNewPlaylist when set, the dialog ends with a "New playlist" button that runs it
+     */
+    public static void showAddToPlaylistDialog(Context context, Video video, VideoMenuCallback callback, Runnable onNewPlaylist) {
         if (video == null) {
             return;
         }
@@ -1074,7 +1081,7 @@ public class AppDialogUtil {
 
         Disposable playlistsInfoAction = itemManager.getPlaylistsInfoObserve(video.videoId)
                 .subscribe(
-                        videoPlaylistInfos -> showAddToPlaylistDialog(context, video, callback, videoPlaylistInfos, null),
+                        videoPlaylistInfos -> showAddToPlaylistDialog(context, video, callback, videoPlaylistInfos, null, onNewPlaylist),
                         error -> {
                             // Fallback to something on error
                             Log.e(TAG, "Get playlists error: %s", error.getMessage());
@@ -1084,6 +1091,11 @@ public class AppDialogUtil {
     }
 
     public static void showAddToPlaylistDialog(Context context, Video video, VideoMenuCallback callback, List<PlaylistInfo> playlistInfos, Runnable onFinish) {
+        showAddToPlaylistDialog(context, video, callback, playlistInfos, onFinish, null);
+    }
+
+    private static void showAddToPlaylistDialog(Context context, Video video, VideoMenuCallback callback, List<PlaylistInfo> playlistInfos,
+                                                Runnable onFinish, Runnable onNewPlaylist) {
         if (playlistInfos == null) {
             MessageHelpers.showMessage(context, R.string.msg_signed_users_only);
             return;
@@ -1092,6 +1104,10 @@ public class AppDialogUtil {
         AppDialogPresenter dialogPresenter = AppDialogPresenter.instance(context);
 
         appendPlaylistDialogContent(context, video, callback, dialogPresenter, playlistInfos);
+        if (onNewPlaylist != null) {
+            dialogPresenter.appendSingleButton(UiOptionItem.from(
+                    context.getString(R.string.add_video_to_new_playlist), optionItem -> onNewPlaylist.run()));
+        }
         dialogPresenter.showDialog(context.getString(R.string.dialog_add_to_playlist), onFinish);
     }
 

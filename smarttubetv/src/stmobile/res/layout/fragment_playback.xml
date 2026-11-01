@@ -86,7 +86,7 @@
         android:background="@android:color/transparent"
         android:scaleType="center"
         android:visibility="visible"
-        android:contentDescription="Back"
+        android:contentDescription="@string/mobile_back"
         app:layout_constraintStart_toStartOf="@id/playback_controls_fragment"
         app:layout_constraintTop_toTopOf="@id/playback_controls_fragment"
         android:layout_marginStart="4dp"
@@ -395,7 +395,7 @@
                         android:textSize="17sp"
                         android:textColor="#FFAAAAAA"
                         android:background="?android:attr/selectableItemBackgroundBorderless"
-                        android:contentDescription="Like" />
+                        android:contentDescription="@string/action_like" />
 
                     <TextView
                         android:id="@+id/mobile_video_dislike_btn"
@@ -408,7 +408,7 @@
                         android:textSize="17sp"
                         android:textColor="#FFAAAAAA"
                         android:background="?android:attr/selectableItemBackgroundBorderless"
-                        android:contentDescription="Dislike" />
+                        android:contentDescription="@string/action_dislike" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
@@ -566,7 +566,7 @@
                 android:src="@drawable/ic_shorts_nav_home"/>
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:paddingTop="2dp"
-                android:textSize="11sp" android:text="Home" android:textColor="@android:color/white"/>
+                android:textSize="11sp" android:text="@string/header_home" android:textColor="@android:color/white"/>
         </LinearLayout>
 
         <LinearLayout
@@ -581,7 +581,7 @@
                 android:src="@drawable/ic_shorts_nav_shorts"/>
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:paddingTop="2dp"
-                android:textSize="11sp" android:text="Shorts" android:textColor="@android:color/white"/>
+                android:textSize="11sp" android:text="@string/header_shorts" android:textColor="@android:color/white"/>
         </LinearLayout>
 
         <LinearLayout
@@ -596,7 +596,7 @@
                 android:src="@drawable/ic_shorts_nav_subs"/>
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:paddingTop="2dp"
-                android:textSize="11sp" android:text="Subscriptions" android:textColor="@android:color/white"/>
+                android:textSize="11sp" android:text="@string/header_subscriptions" android:textColor="@android:color/white"/>
         </LinearLayout>
 
         <LinearLayout
@@ -611,7 +611,7 @@
                 android:src="@drawable/ic_shorts_nav_playlists"/>
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:paddingTop="2dp"
-                android:textSize="11sp" android:text="Playlists" android:textColor="@android:color/white"/>
+                android:textSize="11sp" android:text="@string/header_playlists" android:textColor="@android:color/white"/>
         </LinearLayout>
 
         <LinearLayout
@@ -626,7 +626,7 @@
                 android:src="@drawable/ic_shorts_nav_you"/>
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:paddingTop="2dp"
-                android:textSize="11sp" android:text="You" android:textColor="@android:color/white"/>
+                android:textSize="11sp" android:text="@string/mobile_nav_you" android:textColor="@android:color/white"/>
         </LinearLayout>
     </LinearLayout>
 
@@ -705,7 +705,7 @@
                     android:textColor="@android:color/white"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:text="Account" />
+                    android:text="@string/mobile_account" />
                 <TextView
                     android:id="@+id/profile_email"
                     android:layout_width="match_parent"
@@ -733,7 +733,7 @@
             <TextView android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:paddingStart="12dp"
                 android:textColor="@android:color/white" android:textSize="15sp"
-                android:text="My channel"/>
+                android:text="@string/mobile_my_channel"/>
         </LinearLayout>
 
         <!-- History -->
@@ -750,7 +750,7 @@
             <TextView android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:paddingStart="12dp"
                 android:textColor="@android:color/white" android:textSize="15sp"
-                android:text="History"/>
+                android:text="@string/header_history"/>
         </LinearLayout>
 
         <!-- Playlists -->
@@ -767,7 +767,7 @@
             <TextView android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:paddingStart="12dp"
                 android:textColor="@android:color/white" android:textSize="15sp"
-                android:text="Playlists"/>
+                android:text="@string/header_playlists"/>
         </LinearLayout>
 
         <!-- Settings -->
@@ -784,7 +784,7 @@
             <TextView android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:paddingStart="12dp"
                 android:textColor="@android:color/white" android:textSize="15sp"
-                android:text="Settings"/>
+                android:text="@string/header_settings"/>
         </LinearLayout>
     </LinearLayout>
 
@@ -847,7 +847,7 @@
             android:textColor="@android:color/white"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:text="Save to playlist" />
+            android:text="@string/mobile_player_save" />
 
         <View android:layout_width="match_parent" android:layout_height="1dp"
             android:background="#22FFFFFF" />
@@ -873,7 +873,7 @@
             android:textColor="#FFAAAAAA"
             android:textSize="14sp"
             android:visibility="gone"
-            android:text="No playlists yet" />
+            android:text="@string/mobile_no_playlists" />
     </LinearLayout>
 
     <!--
