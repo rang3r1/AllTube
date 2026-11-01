@@ -1,0 +1,20 @@
+name: token-test
+on: workflow_dispatch
+permissions:
+  contents: write
+jobs:
+  t:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "--- 1 create tag ref via API"
+          gh api repos/${{ github.repository }}/git/refs -f ref=refs/tags/token-test-1 -f sha=$GITHUB_SHA || true
+          echo "--- 2 release, simple new tag"
+          gh release create token-test-2 --target "$GITHUB_SHA" --notes x || true
+          echo "--- 3 release, plus in new tag"
+          gh release create "token-test-3+st1" --target "$GITHUB_SHA" --notes x || true
+          echo "--- 4 release on existing tag"
+          gh release create token-test-1 --verify-tag --notes x || true
