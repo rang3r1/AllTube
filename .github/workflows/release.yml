@@ -6,6 +6,7 @@ name: Release
 #
 # Version: v1.<run number>.0+st<SmartTube version>, versionCode 24000 + run number, so every run
 # is newer than the last. Signing key and passwords come from the ALLTUBE_* repository secrets.
+# Releases appear at https://github.com/rang3r1/AllTube/releases.
 
 on:
   workflow_dispatch:
