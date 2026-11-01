@@ -1,13 +1,9 @@
 name: stmobile validate
 
-# Validates that the phone-fork-specific integration points are intact and the
-# stmobile flavor still builds. Runs on every PR against master (especially
-# upstream-sync PRs, where it's the human-judgment safety net).
-#
-# Three integration points checked (from rebase_runbook):
-#   1. smarttubetv/build.gradle — stmobile product flavor with the com.codesculptor.smartertube applicationId
-#   2. common/build.gradle      — stmobile flavor with ststable matchingFallbacks
-#   3. MainApplication.java     — protected setupViewManager (widened from private)
+# Checks that AllTube still fits the SmartTube code it is built on: the phone flavor's hooks into
+# upstream files are intact, the phone APK builds and its unit tests pass. A hook that upstream
+# removes or narrows breaks the build anyway; these greps catch the ones that would fail silently.
+# Runs on PRs and pushes, and upstream-sync calls it for every SmartTube merge before master.
 
 on:
   pull_request:
@@ -15,6 +11,11 @@ on:
   push:
     branches: [ master ]
   workflow_dispatch:
+  workflow_call:
+    inputs:
+      ref:
+        type: string
+        required: true
 
 jobs:
   validate:
@@ -23,6 +24,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
         with:
+          ref: ${{ inputs.ref || github.ref }}
           submodules: recursive
 
       - name: Set up JDK 17
@@ -32,39 +34,18 @@ jobs:
           distribution: 'temurin'
           cache: 'gradle'
 
-      - name: Verify integration point 1 — smarttubetv/build.gradle
+      - name: Verify the phone flavor's hooks into upstream code
         run: |
-          # Tolerate both 'matchingFallbacks [...]' and 'matchingFallbacks = [...]'
-          # (smarttubetv/build.gradle uses the '=' assignment form).
-          grep -E 'applicationId\s+"com\.codesculptor\.smartertube"' smarttubetv/build.gradle
+          set -e
+          grep -E 'applicationId\s+"de\.rang3r1\.alltube"' smarttubetv/build.gradle
           grep -E "matchingFallbacks\s*=?\s*\['ststable'\]" smarttubetv/build.gradle
-          echo "OK: stmobile flavor present with com.codesculptor.smartertube id and ststable fallback"
-
-      - name: Verify integration point 2 — common/build.gradle
-        run: |
-          # The stmobile flavor block in common/build.gradle uses '=' for the
-          # matchingFallbacks assignment; tolerate either form.
           grep -E 'stmobile\s*\{' common/build.gradle
           grep -E "matchingFallbacks\s*=?\s*\['ststable'\]" common/build.gradle
-          echo "OK: stmobile flavor present in common/build.gradle"
-
-      - name: Verify integration point 3 — MainApplication.setupViewManager
-        run: |
-          # The phone port widens this from private to protected so MobileApplication
-          # can override it. If upstream narrows it again the override breaks silently.
           grep -E 'protected\s+void\s+setupViewManager' \
             smarttubetv/src/main/java/com/liskovsoft/smartyoutubetv2/tv/ui/main/MainApplication.java
-          echo "OK: setupViewManager is protected"
+          echo "OK: all hooks present"
 
-      - name: Build stmobile debug APK
+      - name: Build the phone APK and run its unit tests
         run: |
           chmod +x gradlew
-          ./gradlew :smarttubetv:assembleStmobileDebug --no-daemon
-
-      - name: Upload debug APK
-        if: success()
-        uses: actions/upload-artifact@v7
-        with:
-          name: stmobile-debug-apks
-          path: smarttubetv/build/outputs/apk/stmobile/debug/*.apk
-          if-no-files-found: error
+          ./gradlew :smarttubetv:assembleStmobileDebug :smarttubetv:testStmobileDebugUnitTest --no-daemon

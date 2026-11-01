@@ -1,196 +1,115 @@
 name: Upstream sync
 
-# Daily detection of new upstream commits in yuliskov/SmartTube.
-# Behaviour:
-#   - If upstream/master is mergeable into master with no conflicts, push a
-#     branch `upstream-sync/<date>` and open a PR.
-#   - If a merge would conflict, open an issue listing the conflicting paths
-#     so a human can resolve them with the rebase runbook in hand.
-#   - If master is already up to date with upstream, do nothing.
-#
-# The actual merge stays a human decision — this workflow only does detection
-# and PR/issue creation. See docs/upstream-merge.md for the manual steps.
+# Follows SmartTube's STABLE releases (tags like 32.68s, GitHub release with prerelease=false).
+# When a new one is out: merge it into upstream-sync/<tag>, validate that branch (hooks, build,
+# unit tests), then fast-forward master and start the release workflow. A merge conflict or a
+# failed validation opens one issue for that tag instead, and later runs skip the tag until the
+# issue is closed, so nothing broken reaches master and no build minutes are burnt on repeats.
 
 on:
   schedule:
-    - cron: '17 */6 * * *'  # every 6h at :17 (00:17 / 06:17 / 12:17 / 18:17 UTC)
+    - cron: '17 */6 * * *'  # every 6 h
   workflow_dispatch:
 
 permissions:
   contents: write
-  pull-requests: write
   issues: write
+  actions: write
 
 jobs:
-  sync:
+  merge:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+      branch: ${{ steps.merge.outputs.branch }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Find a new SmartTube stable release
+        id: tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG=$(gh api repos/yuliskov/SmartTube/releases \
+            --jq '[.[] | select(.prerelease == false and .draft == false)][0].tag_name')
+          git fetch https://github.com/yuliskov/SmartTube.git "refs/tags/$TAG:refs/tags/$TAG"
+          if git merge-base --is-ancestor "$TAG" HEAD; then
+            echo "SmartTube $TAG is already in master."
+            exit 0
+          fi
+          OPEN=$(gh issue list --state open --search "\"SmartTube $TAG\" in:title" --json number --jq length)
+          if [ "$OPEN" != "0" ]; then
+            echo "An issue for SmartTube $TAG is open; close it to retry."
+            exit 0
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Merge into a sync branch
+        id: merge
+        if: steps.tag.outputs.tag != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          BRANCH="upstream-sync/$TAG"
+          git checkout -B "$BRANCH"
+          if ! git merge --no-ff -m "Merge SmartTube $TAG" "$TAG"; then
+            CONFLICTS=$(git diff --name-only --diff-filter=U)
+            git merge --abort
+            printf 'Merging SmartTube %s into master conflicts in:\n\n```\n%s\n```\n\nResolve it locally (git merge %s), push master, then close this issue.\n' \
+              "$TAG" "$CONFLICTS" "$TAG" > /tmp/body.md
+            gh issue create --title "SmartTube $TAG: merge conflict" --body-file /tmp/body.md
+            exit 0
+          fi
+          git push --force origin "$BRANCH"
+          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
+
+  validate:
+    needs: merge
+    if: needs.merge.outputs.branch != ''
+    uses: ./.github/workflows/stmobile-validate.yml
+    with:
+      ref: ${{ needs.merge.outputs.branch }}
+
+  publish:
+    needs: [merge, validate]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout master
         uses: actions/checkout@v6
         with:
+          ref: master
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Add upstream remote
-        run: |
-          git remote add upstream https://github.com/yuliskov/SmartTube.git
-          git fetch upstream master --tags
-
-      - name: Configure git identity
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-      - name: Skip if an upstream-sync PR or issue is already open
-        id: existing
+      - name: Fast-forward master and start a release
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ needs.merge.outputs.branch }}
+          TAG: ${{ needs.merge.outputs.tag }}
         run: |
-          # The REST issues endpoint filters by label server-side and includes PRs
-          # (PRs are issues in this API). gh's --label flag does a client-side label
-          # lookup that fails silently under the scoped GITHUB_TOKEN, so use the API.
-          OPEN=$(gh api "repos/${{ github.repository }}/issues?state=open&labels=upstream-sync" --jq 'length')
-          echo "open_items=$OPEN" >> $GITHUB_OUTPUT
-          if [ "$OPEN" != "0" ]; then
-            echo "An upstream-sync PR or issue is already open ($OPEN item(s)) — skipping this run."
-          fi
+          git fetch origin "$BRANCH"
+          git merge --ff-only FETCH_HEAD
+          git push origin master
+          git push origin --delete "$BRANCH"
+          gh workflow run release.yml --ref master -f notes="Based on SmartTube $TAG."
 
-      - name: Check for upstream commits
-        id: check
-        if: steps.existing.outputs.open_items == '0'
-        run: |
-          UPSTREAM_SHA=$(git rev-parse upstream/master)
-          MERGE_BASE=$(git merge-base master upstream/master)
-          echo "upstream_sha=$UPSTREAM_SHA" >> $GITHUB_OUTPUT
-          echo "merge_base=$MERGE_BASE" >> $GITHUB_OUTPUT
-          if [ "$UPSTREAM_SHA" = "$MERGE_BASE" ]; then
-            echo "Up to date with upstream — nothing to do."
-            echo "needs_sync=false" >> $GITHUB_OUTPUT
-          else
-            echo "needs_sync=true" >> $GITHUB_OUTPUT
-            COMMITS=$(git log --oneline "$MERGE_BASE..upstream/master" | head -20)
-            echo "$COMMITS" > /tmp/upstream-commits.txt
-            echo "## New upstream commits since last merge" > /tmp/pr-body.md
-            echo "" >> /tmp/pr-body.md
-            echo '```' >> /tmp/pr-body.md
-            cat /tmp/upstream-commits.txt >> /tmp/pr-body.md
-            echo '```' >> /tmp/pr-body.md
-            echo "" >> /tmp/pr-body.md
-            UPSTREAM_TAG=$(git describe --tags --abbrev=0 upstream/master 2>/dev/null || echo "")
-            if [ -n "$UPSTREAM_TAG" ]; then
-              echo "Latest upstream tag: \`$UPSTREAM_TAG\`" >> /tmp/pr-body.md
-              echo "" >> /tmp/pr-body.md
-            fi
-          fi
-
-      - name: Skip — up to date
-        if: steps.check.outputs.needs_sync == 'false'
-        run: echo "Done."
-
-      - name: Attempt merge into a sync branch
-        if: steps.check.outputs.needs_sync == 'true'
-        id: merge
-        run: |
-          DATE=$(date -u +%Y-%m-%d)
-          # Time suffix so multiple same-day runs (now every 6h) don't collide on the
-          # no-force push after an earlier sync branch has auto-merged and closed.
-          BRANCH="upstream-sync/$DATE-$(date -u +%H%M)"
-          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
-          git checkout -B "$BRANCH" master
-          if git merge --no-ff --no-commit upstream/master; then
-            git commit -m "Merge upstream/master into $BRANCH"
-            echo "status=clean" >> $GITHUB_OUTPUT
-          else
-            CONFLICTS=$(git diff --name-only --diff-filter=U)
-            echo "$CONFLICTS" > /tmp/conflicts.txt
-            git merge --abort
-            echo "status=conflict" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Push sync branch (clean merge)
-        if: steps.check.outputs.needs_sync == 'true' && steps.merge.outputs.status == 'clean'
-        run: |
-          git push origin "${{ steps.merge.outputs.branch }}"
-
-      - name: Open PR (clean merge) and enable auto-merge
-        if: steps.check.outputs.needs_sync == 'true' && steps.merge.outputs.status == 'clean'
+  report-failure:
+    needs: [merge, validate]
+    if: failure() && needs.merge.outputs.branch != ''
+    runs-on: ubuntu-latest
+    steps:
+      - name: Open an issue
         env:
-          # On a fork, the scoped GITHUB_TOKEN is refused `createPullRequest`
-          # ("Resource not accessible by integration") regardless of the
-          # default_workflow_permissions=write / can_approve_pull_request_reviews
-          # toggles — verified live 2026-06-09. A PAT is required for the bot to
-          # open the PR itself. Prefer SYNC_PAT if configured; otherwise fall back
-          # to GITHUB_TOKEN, which fails `gh pr create` and trips the never-silent
-          # issue fallback below so a human can open the (already-pushed) branch.
-          GH_TOKEN: ${{ secrets.SYNC_PAT || secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.merge.outputs.tag }}
+          BRANCH: ${{ needs.merge.outputs.branch }}
+          RUN: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
-          {
-            echo "Automatic merge of upstream/master into master — clean, no conflicts."
-            echo ""
-            cat /tmp/pr-body.md
-            echo ""
-            echo "## Auto-merge"
-            echo ""
-            echo "This PR is set to **auto-merge once \`stmobile-validate\` passes** — the check that"
-            echo "builds the phone APK and confirms the 3 integration points (stmobile flavor blocks +"
-            echo "the protected \`setupViewManager\`) survive the merge. If validation fails, auto-merge"
-            echo "is held and the PR waits for a human (see [docs/upstream-merge.md](../blob/master/docs/upstream-merge.md))."
-            echo ""
-            echo "_Generated by .github/workflows/upstream-sync.yml_"
-          } > /tmp/pr-final.md
-          # Create the PR. If creation fails (e.g. token perms), fall back to an issue so the
-          # sync is never silently dropped — the branch is already pushed, so a human can PR it.
-          # --repo is required: this job adds a git remote named `upstream` (yuliskov/SmartTube),
-          # and gh prefers that remote as the base repo, so without it the PR is attempted on
-          # upstream and the repo-scoped SYNC_PAT is refused ("Resource not accessible by
-          # personal access token", issue #45, 2026-09-26).
-          if ! PR_URL=$(gh pr create \
-            --repo "${{ github.repository }}" \
-            --base master \
-            --head "${{ steps.merge.outputs.branch }}" \
-            --title "Upstream sync $(date -u +%Y-%m-%d) — clean merge" \
-            --body-file /tmp/pr-final.md); then
-            echo "::warning::gh pr create failed — opening a fallback issue instead."
-            gh api "repos/${{ github.repository }}/issues" \
-              -f title="Upstream sync $(date -u +%Y-%m-%d) — PR creation failed, manual merge needed" \
-              -f body="The workflow merged \`upstream/master\` into \`${{ steps.merge.outputs.branch }}\` and pushed it, but could not open a PR automatically (token permissions). Open a PR from that branch into master manually." \
-              -f 'labels[]=upstream-sync'
-            exit 0
-          fi
-          # Apply the label via REST (gh's client-side --label lookup fails under the scoped token).
-          PR_NUM=$(echo "$PR_URL" | grep -oE '[0-9]+$')
-          gh api "repos/${{ github.repository }}/issues/$PR_NUM/labels" \
-            -f 'labels[]=upstream-sync'
-          # Auto-merge once required checks (stmobile-validate) pass. Held automatically on failure.
-          gh pr merge "$PR_URL" --auto --merge \
-            || echo "::warning::could not enable auto-merge; PR left open for manual merge."
-
-      - name: Open issue (conflict)
-        if: steps.check.outputs.needs_sync == 'true' && steps.merge.outputs.status == 'conflict'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          {
-            echo "An automatic merge of \`upstream/master\` conflicts with this fork's \`master\`."
-            echo ""
-            cat /tmp/pr-body.md
-            echo ""
-            echo "## Conflicting paths"
-            echo ""
-            echo '```'
-            cat /tmp/conflicts.txt
-            echo '```'
-            echo ""
-            echo "## Next steps"
-            echo ""
-            echo "Follow [docs/upstream-merge.md](../blob/master/docs/upstream-merge.md) for manual resolution. The 3 integration points from the rebase runbook (\`stmobile\` flavor block in \`smarttubetv/build.gradle\` and \`common/build.gradle\`, plus the \`protected setupViewManager\` widening in \`MainApplication\`) are the most likely conflict surfaces."
-            echo ""
-            echo "_Generated by .github/workflows/upstream-sync.yml_"
-          } > /tmp/issue-body.md
-          # Use the REST API directly — gh issue create --label does a client-side
-          # label lookup that fails under the scoped GITHUB_TOKEN.
-          gh api "repos/${{ github.repository }}/issues" \
-            -f title="Upstream sync $(date -u +%Y-%m-%d) — manual merge needed" \
-            -F body=@/tmp/issue-body.md \
-            -f 'labels[]=upstream-sync' \
-            -f 'labels[]=conflict'
+          gh issue create --repo "${{ github.repository }}" \
+            --title "SmartTube $TAG: validation failed" \
+            --body "The merge of SmartTube $TAG (branch \`$BRANCH\`) fails the hooks check, the build or the unit tests: $RUN. Fix it on that branch, merge it into master, then close this issue."

@@ -141,7 +141,7 @@ android {
                 // The updater's ApkAssetSelector matches the <arch> token; '+' is not filename-safe
                 // so the "+st" metadata separator becomes "-st".
                 def assetVersion = version.replace("+", "-")
-                newApkName = sprintf("SmarterTube-%s-%s.apk", [assetVersion, arch])
+                newApkName = sprintf("AllTube-%s-%s.apk", [assetVersion, arch])
             } else {
                 // Upstream TV flavors keep their existing naming.
                 newApkName = sprintf("%s_%s_%s_%s.apk", [project, flavor, version, arch])
@@ -202,7 +202,9 @@ android {
             // qualifier (an Android package is implicitly the app; tablets included).
             // Renamed from the legacy app.smarttube.mobile in the 2026-06 beta — a one-time
             // clean break (the old id does NOT upgrade in place; see docs/upstream-merge.md).
-            applicationId "com.codesculptor.smartertube"
+            // AllTube (2026-11): own package, so it installs beside SmarterTube and is signed
+            // with its own key. History above refers to SmarterTube's releases.
+            applicationId "de.rang3r1.alltube"
             // Fall back to ststable for dependency modules that don't
             // declare an stmobile flavor.
             matchingFallbacks = ['ststable']
@@ -282,8 +284,10 @@ android {
             //         button in the Classic landscape player; upstream SmartTube 32.68 sync).
             // 23743 = v0.9.10-beta.1+st32.68 (landscape crop with an app language set #82, media notification #84, PiP lock/unlock
             //         #69, Android 7-10 nav-bar strip #47; share from current time #83, smooth pinch zoom #85; upstream 32.68).
-            versionCode 23743
-            versionName "v0.9.10-beta.1+st32.68"
+            // AllTube: the release workflow passes both (-PalltubeVersionCode/-PalltubeVersionName),
+            // so no version-bump commit is needed; local builds use the fallback.
+            versionCode((project.findProperty('alltubeVersionCode') ?: '23743') as int)
+            versionName(project.findProperty('alltubeVersionName') ?: "v0.9.10-beta.1+st32.68")
         }
     }
 }
