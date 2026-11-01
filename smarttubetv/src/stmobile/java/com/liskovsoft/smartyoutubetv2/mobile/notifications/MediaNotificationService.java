@@ -42,6 +42,8 @@ public class MediaNotificationService extends Service {
     private static final int NOTIFICATION_ID = MediaNotificationService.class.hashCode();
     private static final String CHANNEL_ID = "com.codesculptor.smartertube_media";
     private static final String EXTRA_SESSION_TOKEN = "media_session_token";
+    /** Session extra (boolean) marking the "playing on TV" session. */
+    public static final String EXTRA_TV_SESSION = "smartertube.tv_session";
     private static final String ACTION_UPDATE = "smartertube.media.UPDATE";
     private static final String ACTION_PREVIOUS = "smartertube.media.PREVIOUS";
     private static final String ACTION_PLAY_PAUSE = "smartertube.media.PLAY_PAUSE";
@@ -69,13 +71,26 @@ public class MediaNotificationService extends Service {
         }
     };
 
+    // Main thread only. Every startForegroundService() must reach startForeground() in onStartCommand,
+    // or Android kills the app (ForegroundServiceDidNotStartInTimeException). Stopping the service
+    // while a start is still queued, e.g. a video ends in the background right after the next one
+    // started, triggers exactly that. So a stop during a pending start is deferred until it arrives.
+    private static int sPendingStarts;
+    private static boolean sStopRequested;
+
     /** Post (or refresh) the notification for the player's MediaSession. */
     public static void start(Context context, MediaSessionCompat.Token token) {
+        if (token == null) {
+            stop(context);
+            return;
+        }
         Intent intent = new Intent(context, MediaNotificationService.class)
                 .setAction(ACTION_UPDATE)
                 .putExtra(EXTRA_SESSION_TOKEN, token);
         try {
             ContextCompat.startForegroundService(context, intent);
+            sPendingStarts++;
+            sStopRequested = false;
         } catch (Exception e) {
             // ForegroundServiceStartNotAllowedException: app already in the background (Android 12+)
             Log.e(TAG, "Can't start media notification: %s", e.getMessage());
@@ -84,6 +99,10 @@ public class MediaNotificationService extends Service {
 
     /** The MediaSession is gone: remove the notification and stop the service. */
     public static void stop(Context context) {
+        if (sPendingStarts > 0) {
+            sStopRequested = true; // onStartCommand stops once it has called startForeground
+            return;
+        }
         context.stopService(new Intent(context, MediaNotificationService.class));
     }
 
@@ -98,17 +117,17 @@ public class MediaNotificationService extends Service {
         String action = intent != null ? intent.getAction() : null;
 
         if (ACTION_UPDATE.equals(action)) {
-            MediaSessionCompat.Token token = intent.getParcelableExtra(EXTRA_SESSION_TOKEN);
-            if (token == null) {
-                stopSelfCompletely();
-                return START_NOT_STICKY;
-            }
-            bindController(token);
+            sPendingStarts = Math.max(0, sPendingStarts - 1);
+            bindController(intent.getParcelableExtra(EXTRA_SESSION_TOKEN));
             try {
                 startForeground(NOTIFICATION_ID, createNotification());
             } catch (Exception e) {
                 // ForegroundServiceStartNotAllowedException (Android 12+)
                 Log.e(TAG, "startForeground failed: %s", e.getMessage());
+            }
+            if (sStopRequested && sPendingStarts == 0) {
+                sStopRequested = false;
+                stopSelfCompletely();
             }
         } else if (mController == null) {
             // Restarted without a session (process recreated) or a stale action: nothing to show.
@@ -156,12 +175,20 @@ public class MediaNotificationService extends Service {
 
     private void stopSelfCompletely() {
         unbindController();
+        if (sPendingStarts > 0) {
+            return; // a queued start must still reach startForeground; it rebinds the new session
+        }
         if (Build.VERSION.SDK_INT >= 24) {
             stopForeground(STOP_FOREGROUND_REMOVE);
         } else {
             stopForeground(true);
         }
         stopSelf();
+    }
+
+    private boolean isTvSession() {
+        android.os.Bundle extras = mController.getExtras();
+        return extras != null && extras.getBoolean(EXTRA_TV_SESSION);
     }
 
     private boolean isPlaying() {
@@ -190,7 +217,8 @@ public class MediaNotificationService extends Service {
         // metadata is only rebuilt on player events. Then fall back to the app name.
         CharSequence title = null;
         CharSequence author = null;
-        Video video = PlaybackPresenter.instance(getApplicationContext()).getVideo();
+        // The TV session (TvMediaSession) is not about the phone player's video: use its own metadata.
+        Video video = isTvSession() ? null : PlaybackPresenter.instance(getApplicationContext()).getVideo();
         if (video != null) {
             title = video.getTitleFull();
             author = video.getAuthor();

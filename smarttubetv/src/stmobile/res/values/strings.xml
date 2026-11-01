@@ -2,7 +2,7 @@
 <resources>
     <!-- Phone (stmobile) flavor strings. Kept separate from src/main so upstream merges stay clean. -->
     <!-- Override the launcher name for the phone build (src/main ships it as "SmartTube"). -->
-    <string name="app_name" translatable="false">SmarterTube</string>
+    <string name="app_name" translatable="false">AllTube</string>
     <string name="mobile_signin_instructions">Tap Continue below. A browser opens inside the app — sign in to your Google account, check the code matches, and tap Allow. Then come back here; this screen will close once Google confirms.</string>
     <string name="mobile_signin_code_label">Your sign-in code</string>
     <string name="mobile_signin_continue">Continue in browser</string>
@@ -18,15 +18,15 @@
     <string name="mobile_search_voice_unavailable">Voice search isn\'t available on this device.</string>
 
     <!-- About screen -->
-    <string name="mobile_about_title">About SmarterTube</string>
-    <string name="mobile_about_drawer_entry">About SmarterTube</string>
+    <string name="mobile_about_title">About AllTube</string>
+    <string name="mobile_about_drawer_entry">About AllTube</string>
     <string name="mobile_about_tagline">Phone &amp; tablet fork of SmartTube</string>
     <string name="mobile_about_version">Version %1$s</string>
-    <string name="mobile_about_body">SmarterTube is a phone and tablet fork of SmartTube by yuliskov. The YouTube client code is upstream\'s work, merged from upstream on every release. This fork adds the phone/tablet UI on top.\n\nLicensed under MIT, same as upstream.</string>
+    <string name="mobile_about_body">AllTube is a private build based on SmarterTube by CodeSculptor, the phone and tablet fork of SmartTube by yuliskov. The YouTube client code is SmartTube\'s work, merged on every SmartTube release.\n\nLicensed under MIT, same as upstream.</string>
     <string name="mobile_about_link_upstream">Upstream: github.com/yuliskov/SmartTube</string>
-    <string name="mobile_about_link_fork">Fork: github.com/CodeSculptor/SmarterTube</string>
+    <string name="mobile_about_link_fork">Source: github.com/rang3r1/AllTube</string>
     <string name="mobile_about_url_upstream" translatable="false">https://github.com/yuliskov/SmartTube</string>
-    <string name="mobile_about_url_fork" translatable="false">https://github.com/CodeSculptor/SmarterTube</string>
+    <string name="mobile_about_url_fork" translatable="false">https://github.com/rang3r1/AllTube</string>
     <string name="mobile_about_check_updates">Check for updates</string>
     <string name="mobile_about_checking">Checking…</string>
     <string name="mobile_about_up_to_date">You\'re up to date (%1$s).</string>
@@ -37,14 +37,14 @@
     <string name="mobile_about_download">Download APK</string>
     <string name="mobile_whats_new_title">What\'s new in %1$s</string>
     <string name="mobile_whats_new_full_notes">Release notes</string>
-    <string name="mobile_update_notice">SmarterTube %1$s is available</string>
+    <string name="mobile_update_notice">AllTube %1$s is available</string>
     <string name="mobile_update_notice_view">View</string>
     <string name="mobile_update_details_title">Update available: %1$s</string>
-    <string name="mobile_update_details_no_notes">A newer version of SmarterTube is available.</string>
+    <string name="mobile_update_details_no_notes">A newer version of AllTube is available.</string>
     <string name="mobile_update_later">Later</string>
-    <string name="mobile_about_url_releases" translatable="false">https://github.com/CodeSculptor/SmarterTube/releases</string>
+    <string name="mobile_about_url_releases" translatable="false">https://github.com/rang3r1/AllTube/releases</string>
     <!-- GitHub releases LIST endpoint (not /releases/latest, which hides prereleases/betas). -->
-    <string name="mobile_about_url_releases_api" translatable="false">https://api.github.com/repos/CodeSculptor/SmarterTube/releases?per_page=30</string>
+    <string name="mobile_about_url_releases_api" translatable="false">https://api.github.com/repos/rang3r1/AllTube/releases?per_page=30</string>
 
     <!-- Theme picker (light/dark) -->
     <string name="mobile_theme_title">Theme</string>
@@ -72,6 +72,16 @@
     <string name="mobile_player_save">Save to playlist</string>
     <string name="mobile_player_share">Share</string>
     <string name="mobile_share_link_start_at">Share link (start at %1$s)</string>
+    <string name="mobile_cast_to_tv">Play on TV…</string>
+    <string name="mobile_cast_enter_code">On the TV, open YouTube or SmartTube → Settings → Link with TV code, then enter the code shown.</string>
+    <string name="mobile_cast_sent">Playing on %1$s</string>
+    <string name="mobile_cast_waking">Opening YouTube on %1$s…</string>
+    <string name="mobile_cast_failed">Couldn\'t reach the TV. If this keeps happening, link it again with a new TV code.</string>
+    <string name="mobile_cast_choose_tv">Choose TV…</string>
+    <string name="mobile_cast_stop">Stop casting</string>
+    <string name="mobile_cast_searching">Searching for TVs…</string>
+    <string name="mobile_cast_use_code">Link with TV code…</string>
+    <string name="mobile_cast_pair_failed">Linking failed. Check the TV code.</string>
     <string name="mobile_player_more">More</string>
     <string name="mobile_player_back_to_settings">‹  Player settings</string>
     <string name="mobile_player_more_videos">More videos</string>
@@ -95,7 +105,7 @@
     <string name="mobile_notifications_option_off">Off</string>
     <string name="mobile_notifications_channel_name">New uploads</string>
     <string name="mobile_notifications_prompt_title">Get notified about new uploads?</string>
-    <string name="mobile_notifications_prompt_message">SmarterTube can check your subscriptions in the background and notify you when a channel you follow uploads. You can change this later in Settings → Upload notifications.</string>
+    <string name="mobile_notifications_prompt_message">AllTube can check your subscriptions in the background and notify you when a channel you follow uploads. You can change this later in Settings → Upload notifications.</string>
     <string name="mobile_notifications_prompt_yes">Turn on</string>
     <string name="mobile_notifications_prompt_no">Not now</string>
     <string name="mobile_uploads_summary_title">New uploads</string>
@@ -104,14 +114,14 @@
 
     <!-- Opt-in anonymous stats (usage heartbeat + crash reports). See mobile/stats/StatsReporter. -->
     <!-- Base URL of the fork's stats Worker (stats-worker/ in the repo). Empty = feature dormant. -->
-    <string name="mobile_stats_endpoint" translatable="false">https://smartertube-stats.codesculptor.workers.dev</string>
+    <string name="mobile_stats_endpoint" translatable="false"></string>
     <string name="mobile_stats_title">Anonymous stats</string>
-    <string name="mobile_stats_prompt_title">Help improve SmarterTube?</string>
-    <string name="mobile_stats_details">SmarterTube can send the developer:\n\n• an anonymous \"app was used today\" count, at most once a day\n• crash reports (code locations only)\n\nEach includes just the app version and Android version (crash reports also include the phone model).\n\nNever sent: your account, videos, channels, searches or any ID that could identify you.\n\nYou can change this any time in Settings → Anonymous stats.</string>
+    <string name="mobile_stats_prompt_title">Help improve AllTube?</string>
+    <string name="mobile_stats_details">AllTube can send the developer:\n\n• an anonymous \"app was used today\" count, at most once a day\n• crash reports (code locations only)\n\nEach includes just the app version and Android version (crash reports also include the phone model).\n\nNever sent: your account, videos, channels, searches or any ID that could identify you.\n\nYou can change this any time in Settings → Anonymous stats.</string>
     <string name="mobile_stats_prompt_yes">Sure</string>
     <string name="mobile_stats_prompt_no">No thanks</string>
     <string name="mobile_stats_whats_sent">What\'s sent?</string>
-    <string name="mobile_stats_crash_title">SmarterTube crashed last time</string>
+    <string name="mobile_stats_crash_title">AllTube crashed last time</string>
     <string name="mobile_stats_crash_message">Send an anonymous crash report? It contains only code locations, the app and Android versions and the phone model — no account, video or search data.</string>
     <string name="mobile_stats_crash_send">Send</string>
     <string name="mobile_stats_crash_discard">Don\'t send</string>

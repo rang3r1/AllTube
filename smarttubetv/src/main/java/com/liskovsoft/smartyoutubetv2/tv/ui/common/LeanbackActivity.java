@@ -129,6 +129,11 @@ public abstract class LeanbackActivity extends MotherActivity {
     public void finishReally() {
         // Mandatory line. Fix un-proper view order (especially for playback view).
         getViewManager().startParentView(this);
+        finishWithoutParent();
+    }
+
+    /** MOD (phone): finish without bringing the parent screen forward, e.g. when the PIP window is closed. */
+    protected void finishWithoutParent() {
         super.finishReally();
     }
 

@@ -52,6 +52,15 @@ final class MobileShareDialog {
                     optionItem -> share(context, Utils.convertToFullVideoUrl(video.videoId, positionSec))));
         }
 
+        // Same as the player's cast button (the Classic style has none): pick a TV, or stop casting.
+        if (view instanceof MobilePlaybackFragment) {
+            MobilePlaybackFragment player = (MobilePlaybackFragment) view;
+            dialog.appendSingleButton(UiOptionItem.from(context.getString(R.string.mobile_cast_to_tv), optionItem -> {
+                dialog.closeDialog();
+                player.onCastClicked();
+            }));
+        }
+
         AppDialogUtil.appendShareQRLinkDialogItem(context, dialog, video, positionSec);
         AppDialogUtil.appendShareEmbedLinkDialogItem(context, dialog, video, positionSec);
 

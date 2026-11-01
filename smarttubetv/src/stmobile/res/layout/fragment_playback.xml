@@ -111,6 +111,29 @@
         app:layout_constraintEnd_toEndOf="@id/playback_controls_fragment" />
 
     <!--
+        Playing on TV: covers the paused phone video while the player remotes the TV, like the
+        YouTube app. Not clickable, so taps still bring up the controls drawn above it.
+    -->
+    <TextView
+        android:id="@+id/mobile_cast_overlay"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#E6000000"
+        android:gravity="top|center_horizontal"
+        android:paddingStart="24dp"
+        android:paddingTop="60dp"
+        android:paddingEnd="24dp"
+        android:textColor="#FFFFFFFF"
+        android:textSize="15sp"
+        android:clickable="false"
+        android:focusable="false"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="@id/playback_controls_fragment"
+        app:layout_constraintBottom_toBottomOf="@id/playback_controls_fragment"
+        app:layout_constraintStart_toStartOf="@id/playback_controls_fragment"
+        app:layout_constraintEnd_toEndOf="@id/playback_controls_fragment" />
+
+    <!--
         Modern player chrome (#46, Modern + Tap to pause styles): top bar, centre controls, time,
         seek bar and the landscape action row, over the video. See mobile_modern_chrome.xml.
     -->

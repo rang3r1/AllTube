@@ -62,6 +62,14 @@
         </LinearLayout>
 
         <ImageButton
+            android:id="@+id/modern_cast"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_modern_icon_button"
+            android:contentDescription="@string/mobile_cast_to_tv"
+            android:src="@drawable/ic_modern_cast" />
+
+        <ImageButton
             android:id="@+id/modern_cc"
             android:layout_width="48dp"
             android:layout_height="48dp"

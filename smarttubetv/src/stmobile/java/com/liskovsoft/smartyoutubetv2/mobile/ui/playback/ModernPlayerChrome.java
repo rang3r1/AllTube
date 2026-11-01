@@ -68,6 +68,7 @@ final class ModernPlayerChrome {
     private final View mTitleBlock;
     private final TextView mTitle;
     private final TextView mChannel;
+    private final ImageButton mCast;
     private final ImageButton mCc;
     private final ImageButton mPlayPause;
     private final TextView mTime;
@@ -143,6 +144,8 @@ final class ModernPlayerChrome {
         mSheetList.setLayoutManager(new LinearLayoutManager(activity));
 
         mRoot.findViewById(R.id.modern_collapse).setOnClickListener(v -> mActivity.onBackPressed());
+        mCast = mRoot.findViewById(R.id.modern_cast);
+        mCast.setOnClickListener(v -> mHost.onCastClicked());
         mCc.setOnClickListener(v -> clickAction(R.id.lb_control_closed_captioning));
         mCc.setOnLongClickListener(v -> longClickAction(R.id.lb_control_closed_captioning));
         mRoot.findViewById(R.id.modern_settings).setOnClickListener(v -> openActionsSheet());
@@ -161,7 +164,7 @@ final class ModernPlayerChrome {
             if (mHost.style().tapTogglesPlayback()) {
                 mHost.togglePlaybackFromTap();
             } else {
-                mHost.setPlayWhenReady(!mHost.getPlayWhenReady());
+                mHost.uiSetPlaying(!mHost.uiPlaying());
                 mHost.tickle(); // restart the auto-hide timer
             }
             update();
@@ -184,7 +187,7 @@ final class ModernPlayerChrome {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser) {
-                    long duration = mHost.getDurationMs();
+                    long duration = mHost.uiDurationMs();
                     mTime.setText(timeWithChapter(duration * progress / SEEK_MAX, duration));
                     updatePreview(progress);
                     mHost.tickle(); // keep the controls up while dragging
@@ -200,9 +203,9 @@ final class ModernPlayerChrome {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                long duration = mHost.getDurationMs();
+                long duration = mHost.uiDurationMs();
                 if (duration > 0) {
-                    mHost.setPositionMs(duration * seekBar.getProgress() / SEEK_MAX);
+                    mHost.uiSeekTo(duration * seekBar.getProgress() / SEEK_MAX);
                 }
                 mUserSeeking = false;
                 showPreview(false);
@@ -244,7 +247,7 @@ final class ModernPlayerChrome {
     }
 
     private void updatePreview(int progress) {
-        long duration = mHost.getDurationMs();
+        long duration = mHost.uiDurationMs();
         long position = duration * progress / SEEK_MAX;
         mPreviewTime.setText(format(position));
 
@@ -370,13 +373,14 @@ final class ModernPlayerChrome {
         if (mRoot.getVisibility() != View.VISIBLE) {
             return;
         }
-        mPlayPause.setImageResource(mHost.getPlayWhenReady() ? R.drawable.ic_shorts_pause : R.drawable.ic_shorts_play);
-        long duration = mHost.getDurationMs();
+        mPlayPause.setImageResource(mHost.uiPlaying() ? R.drawable.ic_shorts_pause : R.drawable.ic_shorts_play);
+        long duration = mHost.uiDurationMs();
         if (!mUserSeeking) {
-            long position = mHost.getPositionMs();
+            long position = mHost.uiPositionMs();
             mTime.setText(timeWithChapter(position, duration));
             mSeek.setProgress(duration > 0 ? (int) (position * SEEK_MAX / duration) : 0);
         }
+        tint(mCast, mHost.isCasting());
         mCc.setAlpha(isOn(R.id.lb_control_closed_captioning) ? 1f : 0.6f);
         tint(mLike, isOn(R.id.action_thumbs_up));
         tint(mDislike, isOn(R.id.action_thumbs_down));

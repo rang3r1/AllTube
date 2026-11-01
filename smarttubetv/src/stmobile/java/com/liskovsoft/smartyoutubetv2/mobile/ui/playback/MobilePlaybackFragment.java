@@ -251,6 +251,8 @@ public class MobilePlaybackFragment extends PlaybackFragment {
         mSwipeEnabled = MobilePlayerStylePrefs.isSwipeGesturesEnabled(requireContext());
         applyMobileLayout();
         if (mModernChrome != null) mModernChrome.start();
+        LoungeCast.setOnChange(this::onTvChanged);
+        updateCastOverlay();
         updateSettingsButton();
         if (mResumeAfterSettings) {
             // Back from the Settings screen that openAppSettings() paused us for.
@@ -290,8 +292,11 @@ public class MobilePlaybackFragment extends PlaybackFragment {
             session.setSessionActivity(MediaNotificationService.createActivityIntent(ctx));
             MediaNotificationService.start(ctx, mSessionToken);
         } else {
-            // Session released: drop the notification rather than leave a dead, control-less card.
-            MediaNotificationService.stop(ctx);
+            // Session released: drop the notification rather than leave a dead, control-less card,
+            // unless a video is playing on the TV — then its controls take the notification back.
+            if (!TvMediaSession.repost(ctx)) {
+                MediaNotificationService.stop(ctx);
+            }
         }
     }
 
@@ -305,6 +310,7 @@ public class MobilePlaybackFragment extends PlaybackFragment {
         mChromeHandler.removeCallbacks(mShortsLoopPoll);
         mChromeHandler.removeCallbacks(mShortsLoopTimeout);
         if (mModernChrome != null) mModernChrome.stop();
+        LoungeCast.setOnChange(null);
         mAwaitingShortsFrame = false;
         mAwaitingShortsLoop = false;
     }
@@ -350,6 +356,13 @@ public class MobilePlaybackFragment extends PlaybackFragment {
     @Override
     public void setVideo(Video video) {
         super.setVideo(video);
+
+        // Casting: a video opened on the phone (up next, a link, next/previous) goes to the TV, like
+        // the YouTube app. The TV's own video arrives here too (onTvChanged) and is not sent back.
+        if (isCasting() && video != null && video.videoId != null
+                && !video.videoId.equals(LoungeCast.videoId()) && getActivity() != null) {
+            LoungeCast.cast(getActivity(), video.videoId, 0, this::updateCastOverlay);
+        }
 
         if (initPanelViews()) {
             bindHeader(video);
@@ -406,7 +419,7 @@ public class MobilePlaybackFragment extends PlaybackFragment {
         mTitleView.setText(video.getTitleFull() != null ? video.getTitleFull() : "");
         if (mModernChrome != null) mModernChrome.bindVideo(video);
         mDescriptionView.setText(TextLinks.linkify(requireContext(), video.description,
-                ms -> setPositionMs(ms)));
+                this::uiSeekTo));
         mExpandView.setVisibility(TextUtils.isEmpty(video.description) ? View.GONE : View.VISIBLE);
         refreshInfoLine(video);
         updateBellButton(video);
@@ -993,8 +1006,8 @@ public class MobilePlaybackFragment extends PlaybackFragment {
      * resuming hides them and flashes the play icon, like the Shorts player.
      */
     void togglePlaybackFromTap() {
-        boolean play = !getPlayWhenReady();
-        setPlayWhenReady(play);
+        boolean play = !uiPlaying();
+        uiSetPlaying(play);
         if (play) {
             mForceHideControls = true;
             hideControlsOverlay(true);
@@ -1011,9 +1024,9 @@ public class MobilePlaybackFragment extends PlaybackFragment {
         if (playerView == null) return;
         long step = PlayerData.instance(getContext()).getSeekIncrementMs();
         long target = e.getX() < playerView.getWidth() / 2f
-                ? Math.max(0, getPositionMs() - step)
-                : Math.min(getDurationMs(), getPositionMs() + step);
-        setPositionMs(target);
+                ? Math.max(0, uiPositionMs() - step)
+                : Math.min(uiDurationMs(), uiPositionMs() + step);
+        uiSeekTo(target);
         // Show the seek bar briefly so the jump is visible; it auto-hides while playing.
         tickle();
     }
@@ -1459,7 +1472,8 @@ public class MobilePlaybackFragment extends PlaybackFragment {
      * only the Modern controls need to keep off the band (ModernPlayerChrome).
      */
     private void applyCutoutPadding() {
-        if (mRoot == null) return;
+        // Posted from the insets listener, so it can run after the player was closed (fragment detached).
+        if (mRoot == null || !isAdded()) return;
         boolean portrait = getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
         int top = 0;
         if (portrait && mCutoutBands.top > 0) {
@@ -2040,6 +2054,124 @@ public class MobilePlaybackFragment extends PlaybackFragment {
     };
 
     private final Runnable mShortsFrameTimeout = this::finishShortsTransition;
+
+    // ---- Play on TV ------------------------------------------------------------------------------
+    // Like the YouTube app: while casting, this player is the TV's remote. The phone video stays
+    // paused under a "Playing on <TV>" cover, and the controls' play/pause, seek bar, double-tap
+    // and timestamp links act on the TV (the ui* methods). Next/previous and up next stay the
+    // phone's: the video they open is sent to the TV (setVideo), and a video the TV switches to by
+    // itself is opened here (onTvChanged).
+
+    boolean isCasting() {
+        return LoungeCast.isConnected();
+    }
+
+    /** The cast button: pick a TV and play this video there; while casting, stop or switch TV. */
+    // A TV picked from the list was made current by chooseTv, so castCurrent sends to it.
+    void onCastClicked() {
+        Activity activity = getActivity();
+        Video video = PlaybackPresenter.instance(getContext()).getVideo();
+        if (activity == null || video == null || video.videoId == null) {
+            return;
+        }
+        int positionSec = (int) (uiPositionMs() / 1000); // the TV's while casting
+        if (!isCasting()) {
+            // Like YouTube: always the device list (saved TVs, TVs on the Wi-Fi, TV code).
+            LoungeCast.chooseTv(activity, () -> castCurrent(activity, video, positionSec));
+            return;
+        }
+        new android.app.AlertDialog.Builder(activity)
+                .setTitle(getString(R.string.mobile_cast_sent, LoungeCast.screenName(activity)))
+                .setItems(new String[]{getString(R.string.mobile_cast_stop), getString(R.string.mobile_cast_choose_tv)},
+                        (d, which) -> {
+                            if (which == 0) {
+                                stopCasting();
+                            } else {
+                                LoungeCast.chooseTv(activity, () -> castCurrent(activity, video, positionSec));
+                            }
+                        })
+                .show();
+    }
+
+    private void castCurrent(Activity activity, Video video, int positionSec) {
+        super.setPlayWhenReady(false);
+        LoungeCast.cast(activity, video.videoId, positionSec, this::updateCastOverlay);
+    }
+
+    /** Back to the phone where the TV is, like YouTube's "Stop casting". */
+    private void stopCasting() {
+        long positionMs = uiPositionMs();
+        LoungeCast.stop(requireContext()); // counts as disconnected at once
+        updateCastOverlay();
+        super.setPositionMs(positionMs);
+        super.setPlayWhenReady(true);
+    }
+
+    /** The phone video never plays under the cover. */
+    @Override
+    public void setPlayWhenReady(boolean play) {
+        super.setPlayWhenReady(play && !isCasting());
+    }
+
+    boolean uiPlaying() {
+        if (!isCasting()) {
+            return getPlayWhenReady();
+        }
+        int state = LoungeCast.state();
+        return state == LoungeCast.STATE_PLAYING || state == LoungeCast.STATE_BUFFERING;
+    }
+
+    void uiSetPlaying(boolean play) {
+        if (isCasting()) {
+            LoungeCast.control(requireContext(), play ? "play" : "pause");
+        } else {
+            setPlayWhenReady(play);
+        }
+    }
+
+    long uiPositionMs() {
+        return isCasting() ? LoungeCast.positionSec() * 1000L : getPositionMs();
+    }
+
+    long uiDurationMs() {
+        return isCasting() && LoungeCast.durationSec() > 0 ? LoungeCast.durationSec() * 1000L : getDurationMs();
+    }
+
+    void uiSeekTo(long positionMs) {
+        if (isCasting()) {
+            LoungeCast.seekTo(requireContext(), (int) (positionMs / 1000));
+        } else {
+            setPositionMs(positionMs);
+        }
+    }
+
+    /** Main thread, on every report from the TV while this player is resumed. */
+    private void onTvChanged() {
+        updateCastOverlay();
+        if (!isCasting() || !isResumed()) {
+            return;
+        }
+        String tvVideoId = LoungeCast.videoId();
+        Video current = PlaybackPresenter.instance(getContext()).getVideo();
+        if (tvVideoId != null && current != null && !tvVideoId.equals(current.videoId)) {
+            PlaybackPresenter.instance(getContext()).openVideo(tvVideoId); // the TV moved on by itself
+        }
+    }
+
+    private void updateCastOverlay() {
+        Activity activity = getActivity();
+        TextView cover = activity != null ? activity.findViewById(R.id.mobile_cast_overlay) : null;
+        if (cover == null) {
+            return;
+        }
+        boolean casting = isCasting();
+        if (casting) {
+            super.setPlayWhenReady(false);
+            cover.setText(getString(R.string.mobile_cast_sent, LoungeCast.screenName(activity)));
+        }
+        cover.setVisibility(casting ? View.VISIBLE : View.GONE);
+        if (mModernChrome != null) mModernChrome.update();
+    }
 
     // Covers the black frame at position 0 that occurs when a Short loops via PLAYBACK_MODE_ONE.
     // In 31.94 upstream changed setPositionMs(100) → setPositionMs(0); the seek briefly blanks

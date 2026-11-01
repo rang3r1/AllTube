@@ -117,7 +117,9 @@ public class MobilePlaybackActivity extends PlaybackActivity {
      * dismissing the window delivers {@code onPictureInPictureModeChanged(false)} while the activity
      * is only CREATED (stopped, not returning to the foreground); expanding PIP back to fullscreen
      * delivers it at STARTED/RESUMED. So on the dismiss case we unblock the engine and finish for
-     * real ({@link #finishReally()} releases the now-unblocked player and tears the activity down).
+     * real: release the now-unblocked player and tear the activity down. Not via
+     * {@link #finishReally()}: that launches the parent screen, which brings the whole app to the
+     * front after the X (Android allows it from the background once "Display over other apps" is on).
      * Screen-off / Home background audio in {@code BACKGROUND_MODE_SOUND} never enters PIP, so this
      * path doesn't touch it.
      */
@@ -129,8 +131,10 @@ public class MobilePlaybackActivity extends PlaybackActivity {
                 && !getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.STARTED)) {
             if (mMobileFragment != null) {
                 mMobileFragment.blockEngine(false);
+                mMobileFragment.onFinish();
             }
-            finishReally();
+            getViewManager().removeTop(this);
+            finishWithoutParent();
         }
     }
 
@@ -142,6 +146,15 @@ public class MobilePlaybackActivity extends PlaybackActivity {
                 && mMobileFragment.isModernSheetOpen()) {
             if (event.getAction() == KeyEvent.ACTION_UP) {
                 mMobileFragment.closeModernSheet();
+            }
+            return true;
+        }
+        // Casting: the volume keys turn the TV up and down, like the YouTube app.
+        boolean volumeKey = event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP
+                || event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_DOWN;
+        if (volumeKey && mMobileFragment != null && mMobileFragment.isCasting()) {
+            if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                LoungeCast.volumeBy(this, event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP ? 5 : -5);
             }
             return true;
         }
