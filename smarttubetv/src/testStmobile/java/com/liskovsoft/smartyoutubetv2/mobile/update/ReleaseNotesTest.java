@@ -25,6 +25,12 @@ public class ReleaseNotesTest {
             + "Download the APK.\r\n";
 
     @Test
+    public void rendersChangelogWithSectionHeadings() {
+        String html = ReleaseNotes.changelogHtml("# Änderungen\n\n## November 2026\n\n- **Teilen** neu\n\n## Oktober 2026\n\n- Alt\n");
+        assertEquals("<b>November 2026</b><br><br>•&nbsp;<b>Teilen</b> neu<br><br><b>Oktober 2026</b><br><br>•&nbsp;Alt", html);
+    }
+
+    @Test
     public void extractsOnlyTheWhatsNewSection() {
         List<String> lines = ReleaseNotes.extractWhatsNew(BODY);
         assertEquals(5, lines.size());

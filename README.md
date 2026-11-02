@@ -8,7 +8,7 @@ AllTube basiert auf [SmarterTube](https://github.com/CodeSculptor/SmarterTube) v
 
 1. Unter [Releases](https://github.com/rang3r1/AllTube/releases) die neueste APK laden. Für fast alle Handys ist das `AllTube-…-arm64-v8a.apk`, im Zweifel `…-universal.apk`.
 2. Die APK öffnen und die Installation erlauben.
-3. Updates meldet die App selbst (Info → „Check for updates“), oder du nutzt [Obtainium](https://github.com/ImranR98/Obtainium) mit diesem Repo.
+3. Updates meldet die App selbst (☰ → Über AllTube → „Nach Updates suchen“), oder du nutzt [Obtainium](https://github.com/ImranR98/Obtainium) mit diesem Repo.
 
 AllTube hat einen eigenen Paketnamen (`de.rang3r1.alltube`) und läuft neben SmartTube oder SmarterTube.
 
@@ -16,7 +16,11 @@ AllTube hat einen eigenen Paketnamen (`de.rang3r1.alltube`) und läuft neben Sma
 
 - **Auf dem Fernseher abspielen** wie in der YouTube-App: Cast-Knopf im Player, danach steuert der Player den Fernseher (Pause, Zeitleiste, Doppeltippen, Lautstärketasten). „Stop casting“ spielt am Handy an derselben Stelle weiter.
   - Google TV und Chromecast im WLAN werden gefunden. Läuft dort YouTube nicht, startet AllTube es selbst.
-  - SmartTube auf dem Fernseher: dort Einstellungen → Fernsteuerung → Gerät hinzufügen, den Code am Handy unter „Link with TV code…“ eingeben.
+  - SmartTube auf dem Fernseher: dort Einstellungen → Fernsteuerung → Gerät hinzufügen, den Code am Handy unter „Mit TV-Code verknüpfen…“ eingeben.
+- **Teilen** öffnet direkt das Android-Teilen-Menü mit einem sauberen `youtu.be`-Link. Im Player gibt es zusätzlich „Link teilen (ab m:ss)“.
+- **Menüs als Bottom Sheet:** Das Langdruck-Menü auf Videos erscheint von unten wie in der YouTube-App, mit „Zu Später ansehen hinzufügen“, „In Playlist speichern“ (dort auch neue Playlist anlegen) und „Link teilen“.
+- **Deutsche Oberfläche**, wenn das Handy auf Deutsch steht.
+- **Handy-Standards** beim ersten Start: Audio-Sprache „Original“, Hintergrundwiedergabe als Bild-in-Bild (Home oder Zurück). Einmalig gesetzt, eigene Änderungen bleiben.
 - Keine Statistik und keine Absturzberichte an Dritte.
 
 ## So bleibt AllTube aktuell
@@ -28,6 +32,8 @@ Alles läuft über GitHub Actions in diesem Repo:
 | `upstream-sync` | alle 6 Stunden | Prüft, ob SmartTube eine neue **Stable**-Version veröffentlicht hat (Tags wie `32.68s`). Wenn ja: Merge, Prüfung, dann `master` und ein neues Release. Bei Konflikt oder Fehler entsteht ein Issue, `master` bleibt unverändert. |
 | `stmobile-validate` | bei jedem Push und PR | Prüft die Stellen, an denen AllTube in SmartTube-Code eingreift, baut die APK und führt die Unit-Tests aus. |
 | `release` | nach einem erfolgreichen Sync oder von Hand (Actions → Release → Run workflow) | Baut und signiert die APKs und veröffentlicht sie als Release `v1.<n>.0+st<SmartTube-Version>`. |
+
+Die Änderungen stehen in [`smarttubetv/src/stmobile/assets/CHANGELOG.md`](smarttubetv/src/stmobile/assets/CHANGELOG.md), neueste oben. Die App zeigt die Datei unter Über AllTube → „Änderungen“. Ein Release ohne eingetippte Notizen übernimmt den obersten Abschnitt als „What's new“; den zeigt die App nach dem Update und im Update-Hinweis. Vor einem Release also den neuen Abschnitt oben eintragen.
 
 Ein Issue „SmartTube … : merge conflict“ oder „… validation failed“ heißt: Hier muss ein Mensch ran. Nach dem Beheben das Issue schließen, dann versucht es der nächste Lauf erneut.
 

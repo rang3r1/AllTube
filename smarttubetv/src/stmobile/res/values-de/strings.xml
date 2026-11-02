@@ -29,6 +29,7 @@
     <string name="mobile_about_check_failed">Die Update-Suche ist fehlgeschlagen. Prüfe deine Verbindung und versuche es erneut.</string>
     <string name="mobile_about_open_releases">Releases öffnen</string>
     <string name="mobile_about_download">APK herunterladen</string>
+    <string name="mobile_about_changelog">Änderungen</string>
     <string name="mobile_whats_new_title">Neu in %1$s</string>
     <string name="mobile_whats_new_full_notes">Versionshinweise</string>
     <string name="mobile_update_notice">AllTube %1$s ist verfügbar</string>

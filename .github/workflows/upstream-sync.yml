@@ -97,7 +97,7 @@ jobs:
           git merge --ff-only FETCH_HEAD
           git push origin master
           git push origin --delete "$BRANCH"
-          gh workflow run release.yml --ref master -f notes="Based on SmartTube $TAG."
+          gh workflow run release.yml --ref master -f notes="- Basiert jetzt auf SmartTube $TAG."
 
   report-failure:
     needs: [merge, validate]

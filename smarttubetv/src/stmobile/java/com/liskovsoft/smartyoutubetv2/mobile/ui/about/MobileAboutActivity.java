@@ -8,9 +8,15 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.text.HtmlCompat;
 
 import com.liskovsoft.smartyoutubetv2.mobile.ui.base.SystemBarInsets;
 import com.liskovsoft.smartyoutubetv2.mobile.update.MobileUpdateChecker;
+import com.liskovsoft.smartyoutubetv2.mobile.update.ReleaseNotes;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import com.liskovsoft.smartyoutubetv2.tv.BuildConfig;
 import com.liskovsoft.smartyoutubetv2.tv.R;
 
@@ -45,6 +51,29 @@ public class MobileAboutActivity extends AppCompatActivity {
                 openUrl(getString(R.string.mobile_about_url_fork)));
 
         findViewById(R.id.btn_check_updates).setOnClickListener(v -> checkForUpdates());
+        findViewById(R.id.btn_changelog).setOnClickListener(v -> showChangelog());
+    }
+
+    /** The changelog ships in the APK (assets/CHANGELOG.md), so it works offline. */
+    private void showChangelog() {
+        String html = null;
+        try (InputStream in = getAssets().open("CHANGELOG.md")) {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            byte[] buf = new byte[8192];
+            for (int n; (n = in.read(buf)) > 0; ) {
+                out.write(buf, 0, n);
+            }
+            html = ReleaseNotes.changelogHtml(out.toString("UTF-8"));
+        } catch (IOException ignored) {
+        }
+        if (html == null) {
+            return;
+        }
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.mobile_about_changelog)
+                .setMessage(HtmlCompat.fromHtml(html, HtmlCompat.FROM_HTML_MODE_LEGACY))
+                .setPositiveButton(android.R.string.ok, null)
+                .show();
     }
 
     /**

@@ -69,9 +69,34 @@ public final class ReleaseNotes {
     @Nullable
     public static String whatsNewHtml(@Nullable String body) {
         List<String> lines = extractWhatsNew(body);
-        if (lines == null) {
+        return lines != null ? toHtml(lines) : null;
+    }
+
+    /**
+     * Renders the bundled changelog (assets/CHANGELOG.md): the {@code #} title is dropped, each
+     * {@code ##} section heading becomes a bold line.
+     */
+    @Nullable
+    public static String changelogHtml(@Nullable String markdown) {
+        if (markdown == null) {
             return null;
         }
+        List<String> lines = new ArrayList<>();
+        for (String raw : markdown.split("\\r?\\n")) {
+            String line = raw.replaceAll("\\s+$", "");
+            if (line.startsWith("# ")) {
+                continue;
+            }
+            lines.add(HEADING.matcher(line).matches() ? "**" + line.replaceFirst("^#+\\s+", "") + "**" : line);
+        }
+        while (!lines.isEmpty() && lines.get(0).trim().isEmpty()) {
+            lines.remove(0);
+        }
+        return toHtml(lines);
+    }
+
+    @Nullable
+    private static String toHtml(List<String> lines) {
         StringBuilder sb = new StringBuilder();
         boolean lastBlank = false;
         for (String line : lines) {

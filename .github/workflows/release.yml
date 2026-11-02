@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
     inputs:
       notes:
-        description: What changed
+        description: Was ist neu (leer = oberster Abschnitt aus CHANGELOG.md)
         required: false
         default: ''
 
@@ -76,7 +76,13 @@ jobs:
           NOTES: ${{ inputs.notes }}
         # Three steps instead of one `gh release create <files>`: with files gh first creates a
         # draft, which GITHUB_TOKEN was refused here (HTTP 403); tag, release and upload work.
+        # The app shows only the "## What's new" section (after an update and in the update notice).
+        # Without typed notes it is the top section of the changelog that ships in the app.
         run: |
+          if [ -z "$NOTES" ]; then
+            NOTES=$(awk '/^## /{n++; next} n==1' smarttubetv/src/stmobile/assets/CHANGELOG.md)
+          fi
+          BODY=$(printf "## What's new\n\n%s\n" "$NOTES")
           gh api "repos/$GITHUB_REPOSITORY/git/refs" -f ref="refs/tags/$VERSION" -f sha="$GITHUB_SHA"
-          gh release create "$VERSION" --verify-tag --title "AllTube $VERSION" --notes "${NOTES:-AllTube $VERSION}"
+          gh release create "$VERSION" --verify-tag --title "AllTube $VERSION" --notes "$BODY"
           gh release upload "$VERSION" smarttubetv/build/outputs/apk/stmobile/release/*.apk
