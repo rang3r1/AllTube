@@ -649,6 +649,7 @@
     <string name="hide_unwanted_content">Hide content</string>
     <string name="hide_watched_from_home">Hide watched videos from Home</string>
     <string name="hide_watched_from_watch_later">Remove watched videos from Watch later playlist</string>
+    <string name="remote_control_dial">Show in YouTube cast list (DIAL)</string>
     <string name="remote_control_permission">Background Remote control requires Overlay permission</string>
     <string name="login_from_browser">Login from browser</string>
     <string name="disable_remote_history">Disable history when using remote control</string>
@@ -752,6 +753,7 @@
     <string name="comments_disabled">Comments are disabled for this video</string>
     <string name="prefer_sabr_live">SABR live streams</string>
     <string name="prefer_sabr_live_desc">Experimental SABR live streams. Enable only if you have trouble with regular live streams.</string>
+    <string name="live_edge">Keep up with live</string>
     <plurals name="hours">
         <item quantity="one">%s hour</item>
         <item quantity="other">%s hours</item>
