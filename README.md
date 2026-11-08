@@ -16,7 +16,7 @@ AllTube hat einen eigenen Paketnamen (`de.rang3r1.alltube`) und läuft neben Sma
 
 - **Auf dem Fernseher abspielen** wie in der YouTube-App: Cast-Knopf im Player, danach steuert der Player den Fernseher (Pause, Zeitleiste, Doppeltippen, Lautstärketasten). „Stop casting“ spielt am Handy an derselben Stelle weiter.
   - Google TV und Chromecast im WLAN werden gefunden. Läuft dort YouTube nicht, startet AllTube es selbst.
-  - SmartTube auf dem Fernseher: dort Einstellungen → Fernsteuerung → „In der YouTube-Cast-Liste anzeigen (DIAL)“ einschalten, dann erscheint es im WLAN ohne Code (z. B. als „Chromecast (SmartTube)“). Sonst: Einstellungen → Fernsteuerung → Gerät hinzufügen, den Code am Handy unter „Mit TV-Code verknüpfen…“ eingeben.
+  - SmartTube auf dem Fernseher: dort Einstellungen → Fernsteuerung → „Show in YouTube cast list (DIAL)“ einschalten, dann erscheint es im WLAN ohne Code (z. B. als „Chromecast (SmartTube)“). Sonst: Einstellungen → Fernsteuerung → Gerät hinzufügen, den Code am Handy unter „Mit TV-Code verknüpfen…“ eingeben.
 - **Teilen** öffnet direkt das Android-Teilen-Menü mit einem sauberen `youtu.be`-Link. Im Player gibt es zusätzlich „Link teilen (ab m:ss)“.
 - **Menüs als Bottom Sheet:** Das Langdruck-Menü auf Videos erscheint von unten wie in der YouTube-App, mit „Zu Später ansehen hinzufügen“, „In Playlist speichern“ (dort auch neue Playlist anlegen) und „Link teilen“.
 - **Deutsche Oberfläche**, wenn das Handy auf Deutsch steht.

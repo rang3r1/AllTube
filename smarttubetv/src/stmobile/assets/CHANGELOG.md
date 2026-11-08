@@ -2,7 +2,7 @@
 
 ## November 2026 (Cast ohne Code)
 
-- **SmartTube auf dem Fernseher ohne TV-Code:** Ist in SmartTube „In der YouTube-Cast-Liste anzeigen (DIAL)“ an, findet AllTube es im WLAN und koppelt sich selbst.
+- **SmartTube auf dem Fernseher ohne TV-Code:** Ist in SmartTube „Show in YouTube cast list (DIAL)“ an, findet AllTube es im WLAN und koppelt sich selbst.
 
 ## November 2026
 
