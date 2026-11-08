@@ -48,4 +48,17 @@ public class CastProtocolTest {
         assertEquals("urn:x-cast:com.google.cast.receiver", message[1]);
         assertEquals(longText.toString(), new JSONObject(message[2]).getString("text"));
     }
+
+    @Test
+    public void dialReplyAndDescriptionAreParsed() {
+        // Captured from SmartTube 32.71 on a Chromecast with Google TV.
+        String reply = "HTTP/1.1 200 OK\r\nCACHE-CONTROL: max-age=1800\r\nEXT:\r\n"
+                + "location: http://192.168.0.65:8090/dd.xml\r\nST: urn:dial-multiscreen-org:service:dial:1\r\n\r\n";
+        String description = "<root><device><deviceType>urn:dial-multiscreen-org:device:dial:1</deviceType>\n"
+                + "    <friendlyName> Chromecast (SmartTube) </friendlyName>\n<modelName>Chromecast</modelName>";
+
+        assertEquals("http://192.168.0.65:8090/dd.xml", TvDiscovery.header(reply, "LOCATION"));
+        assertEquals(null, TvDiscovery.header(reply, "Application-URL"));
+        assertEquals("Chromecast (SmartTube)", TvDiscovery.tag(description, "friendlyName"));
+    }
 }

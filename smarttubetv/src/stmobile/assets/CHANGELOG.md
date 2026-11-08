@@ -1,5 +1,9 @@
 # Änderungen
 
+## November 2026 (Cast ohne Code)
+
+- **SmartTube auf dem Fernseher ohne TV-Code:** Ist in SmartTube „In der YouTube-Cast-Liste anzeigen (DIAL)“ an, findet AllTube es im WLAN und koppelt sich selbst.
+
 ## November 2026
 
 - **Teilen** öffnet direkt das Android-Teilen-Menü mit einem sauberen youtu.be-Link. Im Player gibt es zusätzlich „Link teilen (ab m:ss)“.
