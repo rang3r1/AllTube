@@ -26,6 +26,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
+import com.liskovsoft.mediaserviceinterfaces.data.MediaGroup;
 import com.liskovsoft.mediaserviceinterfaces.oauth.Account;
 import com.liskovsoft.smartyoutubetv2.common.app.models.data.BrowseSection;
 import com.liskovsoft.smartyoutubetv2.common.app.models.data.SettingsGroup;
@@ -73,6 +74,8 @@ public class MobileBrowseFragment extends Fragment implements BrowseView, MediaS
     private int mGridCardWidth;
     private int mGridSpan;
     private int mShelfCardWidth;
+    private ViewGroup mBottomNav;
+    private int mCurrentSectionId = -1;
 
     @Nullable
     @Override
@@ -117,12 +120,20 @@ public class MobileBrowseFragment extends Fragment implements BrowseView, MediaS
         MediaServiceManager.instance().addAccountListener(this);
         updateAccountIcon();
 
+        // Pinned so it stays reachable when the section list needs scrolling.
+        view.findViewById(R.id.drawer_settings).setOnClickListener(v -> {
+            mDrawer.closeDrawer(GravityCompat.START);
+            MobileSettingsActivity.start(getContext(), false);
+        });
+
         view.findViewById(R.id.drawer_about).setOnClickListener(v -> {
             if (mDrawer != null) {
                 mDrawer.closeDrawer(GravityCompat.START);
             }
             startActivity(new Intent(getContext(), MobileAboutActivity.class));
         });
+
+        setupBottomNav(view);
 
         int screenWidth = getResources().getDisplayMetrics().widthPixels;
         mGridSpan = getResources().getInteger(R.integer.mobile_grid_span);
@@ -153,6 +164,51 @@ public class MobileBrowseFragment extends Fragment implements BrowseView, MediaS
         mPresenter = BrowsePresenter.instance(getContext());
         mPresenter.setView(this);
         mPresenter.onViewInitialized();
+    }
+
+    private void setupBottomNav(View view) {
+        mBottomNav = view.findViewById(R.id.mobile_bottom_nav);
+        bindNavTab(view, R.id.nav_home, MediaGroup.TYPE_HOME);
+        bindNavTab(view, R.id.nav_shorts, MediaGroup.TYPE_SHORTS);
+        bindNavTab(view, R.id.nav_subscriptions, MediaGroup.TYPE_SUBSCRIPTIONS);
+        bindNavTab(view, R.id.nav_playlists, MediaGroup.TYPE_USER_PLAYLISTS);
+        view.findViewById(R.id.nav_you).setOnClickListener(v -> mDrawer.openDrawer(GravityCompat.START));
+    }
+
+    private void bindNavTab(View root, int tabId, int sectionId) {
+        View tab = root.findViewById(tabId);
+        tab.setTag(sectionId);
+        tab.setOnClickListener(v -> {
+            if (mCurrentSectionId == sectionId) {
+                mContentList.smoothScrollToPosition(0); // as in YouTube: re-tap jumps to the top
+            } else if (mPresenter != null) {
+                mPresenter.selectSection(sectionId);
+            }
+        });
+    }
+
+    /** Back closes the drawer, then returns to Home (as in YouTube), then leaves the app. */
+    boolean handleBack() {
+        if (mDrawer != null && mDrawer.isDrawerOpen(GravityCompat.START)) {
+            mDrawer.closeDrawer(GravityCompat.START);
+            return true;
+        }
+        if (mPresenter != null && mCurrentSectionId != MediaGroup.TYPE_HOME && mCurrentSectionId != -1) {
+            mPresenter.selectSection(MediaGroup.TYPE_HOME);
+            return true;
+        }
+        return false;
+    }
+
+    private void updateBottomNav() {
+        int on = ContextCompat.getColor(requireContext(), R.color.mobile_text_primary);
+        int off = ContextCompat.getColor(requireContext(), R.color.mobile_text_secondary);
+        for (int i = 0; i < mBottomNav.getChildCount(); i++) {
+            ViewGroup tab = (ViewGroup) mBottomNav.getChildAt(i);
+            int color = Integer.valueOf(mCurrentSectionId).equals(tab.getTag()) ? on : off;
+            ((ImageView) tab.getChildAt(0)).setImageTintList(ColorStateList.valueOf(color));
+            ((TextView) tab.getChildAt(1)).setTextColor(color);
+        }
     }
 
     private void onSectionPicked(BrowseSection section) {
@@ -275,6 +331,8 @@ public class MobileBrowseFragment extends Fragment implements BrowseView, MediaS
         BrowseSection section = mSectionAdapter.getItem(index);
         mSectionSelected = true;
         mSectionAdapter.setSelected(section);
+        mCurrentSectionId = section.getId();
+        updateBottomNav();
         if (mToolbarTitle != null) {
             mToolbarTitle.setText(section.getTitle());
         }

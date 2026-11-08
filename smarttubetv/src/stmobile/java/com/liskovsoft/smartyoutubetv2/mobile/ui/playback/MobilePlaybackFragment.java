@@ -431,12 +431,10 @@ public class MobilePlaybackFragment extends PlaybackFragment {
         // The stats line under the title carries views now (YouTube parity).
         mViewsView.setVisibility(View.GONE);
         if (mPortraitLikeBtn != null) {
-            mPortraitLikeBtn.setText(video.likeCount != null
-                    ? Helpers.THUMB_UP + " " + video.likeCount : Helpers.THUMB_UP);
+            mPortraitLikeBtn.setText(video.likeCount != null ? video.likeCount : "");
         }
         if (mPortraitDislikeBtn != null) {
-            mPortraitDislikeBtn.setText(video.dislikeCount != null
-                    ? Helpers.THUMB_DOWN + " " + video.dislikeCount : Helpers.THUMB_DOWN);
+            mPortraitDislikeBtn.setText(video.dislikeCount != null ? video.dislikeCount : "");
         }
 
         bindShortsChrome(video);
@@ -1279,7 +1277,7 @@ public class MobilePlaybackFragment extends PlaybackFragment {
             mShortsInfoBar.setVisibility(isShorts && strip ? View.VISIBLE : View.GONE);
         }
         if (mShortsNavBar != null) {
-            mShortsNavBar.setVisibility(strip ? View.VISIBLE : View.GONE);
+            mShortsNavBar.setVisibility(strip && isShorts ? View.VISIBLE : View.GONE);
         }
 
         // Leanback suggestion rows: removed while in the strip (they draw inside the small video
@@ -1330,7 +1328,7 @@ public class MobilePlaybackFragment extends PlaybackFragment {
         if (strip) {
             set.setVisibility(R.id.mobile_below_video_panel, showPanel ? View.VISIBLE : View.GONE);
             set.setVisibility(R.id.mobile_shorts_info_bar, isShorts ? View.VISIBLE : View.GONE);
-            set.setVisibility(R.id.mobile_shorts_nav_bar, View.VISIBLE);
+            set.setVisibility(R.id.mobile_shorts_nav_bar, isShorts ? View.VISIBLE : View.GONE);
         } else {
             set.connect(R.id.playback_controls_fragment, ConstraintSet.BOTTOM,
                     ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM);

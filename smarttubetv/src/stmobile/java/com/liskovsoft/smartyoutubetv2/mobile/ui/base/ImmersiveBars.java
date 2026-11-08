@@ -1,16 +1,19 @@
 package com.liskovsoft.smartyoutubetv2.mobile.ui.base;
 
 import android.app.Activity;
+import android.content.res.Configuration;
 import android.os.Build;
 import android.view.Window;
 import android.view.WindowManager;
 
+import androidx.core.content.ContextCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 
 import com.liskovsoft.sharedutils.helpers.Helpers;
 import com.liskovsoft.smartyoutubetv2.common.prefs.GeneralData;
+import com.liskovsoft.smartyoutubetv2.tv.R;
 
 /**
  * Keeps upstream's Fullscreen mode (bars hidden) in force on phone screens (#47).
@@ -31,6 +34,30 @@ import com.liskovsoft.smartyoutubetv2.common.prefs.GeneralData;
  */
 public final class ImmersiveBars {
     private ImmersiveBars() {
+    }
+
+    /**
+     * Status and navigation bars stay visible on content screens, as in the YouTube app; upstream's
+     * Fullscreen mode then only applies to the player.
+     * shortcut: below API 30 content screens stay immersive, SystemBarInsets can't pad there (stable insets).
+     */
+    public static void show(Activity activity) {
+        if (activity == null || activity.isFinishing() || Build.VERSION.SDK_INT < 30) {
+            return;
+        }
+        Window window = activity.getWindow();
+        WindowInsetsControllerCompat controller = WindowCompat.getInsetsController(window, window.getDecorView());
+        boolean night = (activity.getResources().getConfiguration().uiMode
+                & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES;
+        // Upstream's translucent flags draw a grey scrim behind the bars.
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS
+                | WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+        int background = ContextCompat.getColor(activity, R.color.mobile_background);
+        window.setStatusBarColor(background);
+        window.setNavigationBarColor(background);
+        controller.setAppearanceLightStatusBars(!night);
+        controller.setAppearanceLightNavigationBars(!night);
+        controller.show(WindowInsetsCompat.Type.systemBars());
     }
 
     public static void apply(Activity activity) {

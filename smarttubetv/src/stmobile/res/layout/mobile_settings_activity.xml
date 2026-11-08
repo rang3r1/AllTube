@@ -19,7 +19,9 @@
             android:layout_width="56dp"
             android:layout_height="56dp"
             android:gravity="center"
-            android:text="←"
+            android:paddingStart="16dp"
+            android:drawableStart="@drawable/ic_mobile_back"
+            android:drawableTint="@color/mobile_text_primary"
             android:textColor="@color/mobile_text_primary"
             android:textSize="22sp"
             android:background="?android:attr/selectableItemBackground" />

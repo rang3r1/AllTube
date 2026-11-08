@@ -78,8 +78,10 @@ final class MobileSettingsRows {
             // phone build's own About screen in the drawer footer (MobileAboutActivity) is
             // the single About surface.
             String aboutTitle = context != null ? context.getString(R.string.settings_about) : null;
+            // Auto Frame Rate switches a TV's display mode; a phone has no use for it.
+            String afrTitle = context != null ? context.getString(R.string.auto_frame_rate) : null;
             for (SettingsItem item : upstreamItems) {
-                if (aboutTitle != null && aboutTitle.equals(item.title)) {
+                if (item.title != null && (item.title.equals(aboutTitle) || item.title.equals(afrTitle))) {
                     continue;
                 }
                 items.add(item);

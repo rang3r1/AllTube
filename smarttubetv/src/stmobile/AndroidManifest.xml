@@ -84,6 +84,7 @@
              portrait) so a Short never flashes landscape before the runtime lock applies. -->
         <activity
             android:name="com.liskovsoft.smartyoutubetv2.mobile.ui.playback.MobilePlaybackActivity"
+            android:taskAffinity="${applicationId}.player"
             android:exported="false"
             android:launchMode="singleTop"
             android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|layoutDirection|keyboardHidden"

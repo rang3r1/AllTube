@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Home bottom navigation (YouTube-style). "You" opens the drawer with every other section. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/mobile_bottom_nav"
+    android:layout_width="match_parent"
+    android:layout_height="56dp"
+    android:orientation="horizontal"
+    android:background="@color/mobile_primary">
+
+    <LinearLayout
+        android:id="@+id/nav_home"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:background="?android:attr/selectableItemBackground">
+        <ImageView android:layout_width="24dp" android:layout_height="24dp"
+            android:src="@drawable/ic_shorts_nav_home" android:importantForAccessibility="no"
+            android:tint="@color/mobile_text_secondary" />
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:paddingTop="2dp" android:textSize="11sp" android:singleLine="true"
+            android:text="@string/header_home" android:textColor="@color/mobile_text_secondary" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/nav_shorts"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:background="?android:attr/selectableItemBackground">
+        <ImageView android:layout_width="24dp" android:layout_height="24dp"
+            android:src="@drawable/ic_shorts_nav_shorts" android:importantForAccessibility="no"
+            android:tint="@color/mobile_text_secondary" />
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:paddingTop="2dp" android:textSize="11sp" android:singleLine="true"
+            android:text="@string/header_shorts" android:textColor="@color/mobile_text_secondary" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/nav_subscriptions"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:background="?android:attr/selectableItemBackground">
+        <ImageView android:layout_width="24dp" android:layout_height="24dp"
+            android:src="@drawable/ic_shorts_nav_subs" android:importantForAccessibility="no"
+            android:tint="@color/mobile_text_secondary" />
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:paddingTop="2dp" android:textSize="11sp" android:singleLine="true"
+            android:text="@string/header_subscriptions" android:textColor="@color/mobile_text_secondary" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/nav_playlists"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:background="?android:attr/selectableItemBackground">
+        <ImageView android:layout_width="24dp" android:layout_height="24dp"
+            android:src="@drawable/ic_shorts_nav_playlists" android:importantForAccessibility="no"
+            android:tint="@color/mobile_text_secondary" />
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:paddingTop="2dp" android:textSize="11sp" android:singleLine="true"
+            android:text="@string/mobile_nav_playlists" android:textColor="@color/mobile_text_secondary" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/nav_you"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:background="?android:attr/selectableItemBackground">
+        <ImageView android:layout_width="24dp" android:layout_height="24dp"
+            android:src="@drawable/ic_shorts_nav_you" android:importantForAccessibility="no"
+            android:tint="@color/mobile_text_secondary" />
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:paddingTop="2dp" android:textSize="11sp" android:singleLine="true"
+            android:text="@string/mobile_nav_you" android:textColor="@color/mobile_text_secondary" />
+    </LinearLayout>
+</LinearLayout>

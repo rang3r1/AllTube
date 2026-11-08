@@ -395,6 +395,9 @@
                         android:textSize="17sp"
                         android:textColor="#FFAAAAAA"
                         android:background="?android:attr/selectableItemBackgroundBorderless"
+                        android:drawableStart="@drawable/ic_mobile_like"
+                        android:drawableTint="#FFAAAAAA"
+                        android:drawablePadding="6dp"
                         android:contentDescription="@string/action_like" />
 
                     <TextView
@@ -408,6 +411,9 @@
                         android:textSize="17sp"
                         android:textColor="#FFAAAAAA"
                         android:background="?android:attr/selectableItemBackgroundBorderless"
+                        android:drawableStart="@drawable/ic_mobile_dislike"
+                        android:drawableTint="#FFAAAAAA"
+                        android:drawablePadding="6dp"
                         android:contentDescription="@string/action_dislike" />
                 </LinearLayout>
             </LinearLayout>

@@ -2,6 +2,8 @@ package com.liskovsoft.smartyoutubetv2.mobile.ui.main;
 
 import android.app.Activity;
 import android.app.Application;
+import android.content.ComponentName;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
@@ -18,6 +20,7 @@ import com.liskovsoft.smartyoutubetv2.common.app.views.ViewManager;
 import com.liskovsoft.smartyoutubetv2.common.app.views.WebBrowserView;
 import com.liskovsoft.mediaserviceinterfaces.data.MediaGroup;
 import com.liskovsoft.smartyoutubetv2.common.app.presenters.BrowsePresenter;
+import com.liskovsoft.smartyoutubetv2.common.app.presenters.PlaybackPresenter;
 import com.liskovsoft.smartyoutubetv2.common.app.presenters.service.SidebarService;
 import com.liskovsoft.smartyoutubetv2.common.app.presenters.settings.GeneralSettingsPresenter;
 import com.liskovsoft.smartyoutubetv2.common.prefs.AppPrefs;
@@ -48,6 +51,8 @@ import com.liskovsoft.smartyoutubetv2.tv.ui.webbrowser.WebBrowserActivity;
  * phases will replace them in turn).
  */
 public class MobileApplication extends MainApplication {
+    private Activity mResumedActivity;
+
     /**
      * Re-applies the notifications-section default whenever the active account changes.
      *
@@ -88,6 +93,18 @@ public class MobileApplication extends MainApplication {
             @Override
             public void onActivityStarted(Activity activity) {
                 StatsReporter.onForeground(activity);
+            }
+
+            @Override
+            public void onActivityResumed(Activity activity) {
+                mResumedActivity = activity;
+            }
+
+            @Override
+            public void onActivityPaused(Activity activity) {
+                if (mResumedActivity == activity) {
+                    mResumedActivity = null;
+                }
             }
         });
 
@@ -182,6 +199,26 @@ public class MobileApplication extends MainApplication {
         viewManager.register(ChannelView.class, MobileChannelActivity.class, MobileBrowseActivity.class);
         viewManager.register(ChannelUploadsView.class, MobileChannelUploadsActivity.class, MobileBrowseActivity.class);
         viewManager.register(WebBrowserView.class, WebBrowserActivity.class, MobileBrowseActivity.class);
+    }
+
+    /**
+     * Keeps a PIP window from swallowing navigation. The player has its own taskAffinity, so while it
+     * is pinned, Search and friends (singleTask / NEW_TASK, default affinity) can't land in its task.
+     * That affinity would also give every normal video its own task, so outside PIP the player is
+     * started from the current screen, which keeps it in the app's single task. ViewManager launches
+     * through the application context, hence this seam.
+     */
+    @Override
+    public void startActivity(Intent intent) {
+        ComponentName target = intent.getComponent();
+        if (mResumedActivity != null && target != null
+                && MobilePlaybackActivity.class.getName().equals(target.getClassName())
+                && !PlaybackPresenter.instance(this).isInPipMode()) {
+            intent.removeFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            mResumedActivity.startActivity(intent);
+            return;
+        }
+        super.startActivity(intent);
     }
 
     /** Lifecycle callbacks with empty defaults, so callers override only what they need. */

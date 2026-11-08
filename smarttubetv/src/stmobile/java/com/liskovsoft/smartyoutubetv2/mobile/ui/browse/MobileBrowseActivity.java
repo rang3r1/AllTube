@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 
 import com.liskovsoft.mediaserviceinterfaces.ServiceManager;
 import com.liskovsoft.smartyoutubetv2.mobile.notifications.NotificationPollWorker;
@@ -121,6 +122,15 @@ public class MobileBrowseActivity extends MobileActivity {
         mAfterPermission = then;
         ActivityCompat.requestPermissions(
                 this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, REQ_POST_NOTIFICATIONS);
+    }
+
+    @Override
+    public void onBackPressed() {
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.mobile_browse_root);
+        if (fragment instanceof MobileBrowseFragment && ((MobileBrowseFragment) fragment).handleBack()) {
+            return;
+        }
+        super.onBackPressed();
     }
 
     @Override

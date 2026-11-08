@@ -202,8 +202,10 @@ public class MobileChannelFragment extends Fragment implements ChannelView {
         mPresenter.setView(this);
 
         Video channel = mPresenter.getChannel();
-        if (channel != null && channel.getTitle() != null) {
-            mTitleView.setText(channel.getTitle());
+        // Opened from the player, "channel" is the current video: show its author, not its title.
+        String channelName = channel == null ? null : channel.isChannel() ? channel.getTitle() : channel.getAuthor();
+        if (channelName != null) {
+            mTitleView.setText(channelName);
         }
 
         setupSubscribeButton(channel);
