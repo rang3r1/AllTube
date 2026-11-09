@@ -81,6 +81,7 @@
     <string name="dialog_add_to_playlist">In Playlist speichern</string>
     <string name="mobile_back">Zurück</string>
     <string name="mobile_nav_playlists">Playlists</string>
+    <string name="mobile_nav_watch_later">Später ansehen</string>
     <string name="mobile_nav_you">Du</string>
     <string name="mobile_account">Konto</string>
     <string name="mobile_my_channel">Mein Kanal</string>

@@ -28,12 +28,17 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.bumptech.glide.Glide;
 import com.liskovsoft.mediaserviceinterfaces.data.MediaGroup;
 import com.liskovsoft.mediaserviceinterfaces.oauth.Account;
+import com.liskovsoft.mediaserviceinterfaces.data.MediaItem;
+import com.liskovsoft.sharedutils.helpers.MessageHelpers;
+import com.liskovsoft.sharedutils.rx.RxHelper;
+import com.liskovsoft.youtubeapi.service.YouTubeServiceManager;
 import com.liskovsoft.smartyoutubetv2.common.app.models.data.BrowseSection;
 import com.liskovsoft.smartyoutubetv2.common.app.models.data.SettingsGroup;
 import com.liskovsoft.smartyoutubetv2.common.app.models.data.Video;
 import com.liskovsoft.smartyoutubetv2.common.app.models.data.VideoGroup;
 import com.liskovsoft.smartyoutubetv2.common.app.models.errors.ErrorFragmentData;
 import com.liskovsoft.smartyoutubetv2.common.app.presenters.BrowsePresenter;
+import com.liskovsoft.smartyoutubetv2.common.app.presenters.ChannelUploadsPresenter;
 import com.liskovsoft.smartyoutubetv2.common.app.presenters.SearchPresenter;
 import com.liskovsoft.smartyoutubetv2.common.app.presenters.dialogs.AccountSelectionPresenter;
 import com.liskovsoft.smartyoutubetv2.common.app.presenters.settings.AccountSettingsPresenter;
@@ -67,6 +72,7 @@ public class MobileBrowseFragment extends Fragment implements BrowseView, MediaS
     private SectionAdapter mSectionAdapter;
     private VideoCardAdapter mGridAdapter;
     private ShelfAdapter mShelfAdapter;
+    private static final String WATCH_LATER_CHANNEL_ID = "VLWL";
     private SettingsItemAdapter mSettingsAdapter;
     private boolean mProgressShowing;
     private boolean mSwipeRefreshing;
@@ -120,12 +126,6 @@ public class MobileBrowseFragment extends Fragment implements BrowseView, MediaS
         MediaServiceManager.instance().addAccountListener(this);
         updateAccountIcon();
 
-        // Pinned so it stays reachable when the section list needs scrolling.
-        view.findViewById(R.id.drawer_settings).setOnClickListener(v -> {
-            mDrawer.closeDrawer(GravityCompat.START);
-            MobileSettingsActivity.start(getContext(), false);
-        });
-
         view.findViewById(R.id.drawer_about).setOnClickListener(v -> {
             if (mDrawer != null) {
                 mDrawer.closeDrawer(GravityCompat.START);
@@ -169,10 +169,29 @@ public class MobileBrowseFragment extends Fragment implements BrowseView, MediaS
     private void setupBottomNav(View view) {
         mBottomNav = view.findViewById(R.id.mobile_bottom_nav);
         bindNavTab(view, R.id.nav_home, MediaGroup.TYPE_HOME);
-        bindNavTab(view, R.id.nav_shorts, MediaGroup.TYPE_SHORTS);
+        view.findViewById(R.id.nav_watch_later).setOnClickListener(v -> openWatchLater());
         bindNavTab(view, R.id.nav_subscriptions, MediaGroup.TYPE_SUBSCRIPTIONS);
         bindNavTab(view, R.id.nav_playlists, MediaGroup.TYPE_USER_PLAYLISTS);
         view.findViewById(R.id.nav_you).setOnClickListener(v -> mDrawer.openDrawer(GravityCompat.START));
+    }
+
+    /** Opens YouTube's built-in Watch later playlist exactly like tapping its card in Playlists. */
+    private void openWatchLater() {
+        RxHelper.execute(YouTubeServiceManager.instance().getContentService().getPlaylistsObserve(), group -> {
+            for (MediaItem item : group.getMediaItems()) {
+                if (WATCH_LATER_CHANNEL_ID.equals(item.getChannelId()) && getContext() != null) {
+                    ChannelUploadsPresenter.instance(getContext()).openChannel(Video.from(item));
+                    return;
+                }
+            }
+            showWatchLaterUnavailable();
+        }, error -> showWatchLaterUnavailable());
+    }
+
+    private void showWatchLaterUnavailable() {
+        if (getContext() != null) {
+            MessageHelpers.showMessage(getContext(), R.string.msg_signed_users_only);
+        }
     }
 
     private void bindNavTab(View root, int tabId, int sectionId) {

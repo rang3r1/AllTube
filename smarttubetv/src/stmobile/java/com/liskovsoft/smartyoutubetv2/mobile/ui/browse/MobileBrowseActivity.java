@@ -13,6 +13,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.liskovsoft.mediaserviceinterfaces.ServiceManager;
+import com.liskovsoft.smartyoutubetv2.common.app.presenters.PlaybackPresenter;
 import com.liskovsoft.smartyoutubetv2.mobile.notifications.NotificationPollWorker;
 import com.liskovsoft.smartyoutubetv2.mobile.stats.StatsDialogs;
 import com.liskovsoft.smartyoutubetv2.mobile.ui.base.MobileActivity;
@@ -128,6 +129,11 @@ public class MobileBrowseActivity extends MobileActivity {
     public void onBackPressed() {
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.mobile_browse_root);
         if (fragment instanceof MobileBrowseFragment && ((MobileBrowseFragment) fragment).handleBack()) {
+            return;
+        }
+        // Finishing the last screen would also end the video playing in the PiP window.
+        if (PlaybackPresenter.instance(this).isInPipMode()) {
+            moveTaskToBack(true);
             return;
         }
         super.onBackPressed();

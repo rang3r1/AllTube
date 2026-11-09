@@ -24,7 +24,7 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/nav_shorts"
+        android:id="@+id/nav_watch_later"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
@@ -32,11 +32,11 @@
         android:gravity="center"
         android:background="?android:attr/selectableItemBackground">
         <ImageView android:layout_width="24dp" android:layout_height="24dp"
-            android:src="@drawable/ic_shorts_nav_shorts" android:importantForAccessibility="no"
+            android:src="@drawable/ic_mobile_watch_later" android:importantForAccessibility="no"
             android:tint="@color/mobile_text_secondary" />
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:paddingTop="2dp" android:textSize="11sp" android:singleLine="true"
-            android:text="@string/header_shorts" android:textColor="@color/mobile_text_secondary" />
+            android:text="@string/mobile_nav_watch_later" android:textColor="@color/mobile_text_secondary" />
     </LinearLayout>
 
     <LinearLayout
