@@ -45,6 +45,7 @@ import com.liskovsoft.smartyoutubetv2.common.misc.MediaServiceManager;
 import com.liskovsoft.smartyoutubetv2.mobile.ui.browse.VideoCardAdapter;
 import com.liskovsoft.smartyoutubetv2.tv.R;
 import com.liskovsoft.youtubeapi.service.YouTubeServiceManager;
+import com.liskovsoft.youtubeapi.service.internal.MediaServiceData;
 
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
@@ -493,6 +494,10 @@ public class MobileChannelFragment extends Fragment implements ChannelView {
     }
 
     private void appendTab(VideoGroup group) {
+        // Mit „Shorts auf Kanälen ausblenden“ keinen Shorts-Tab anlegen, falls der Filter ihn nicht leert.
+        if (group.isShorts() && MediaServiceData.instance().isContentHidden(MediaServiceData.CONTENT_SHORTS_CHANNEL)) {
+            return;
+        }
         mTabsAdapter.appendGroup(group);
         maybeResolveSubscribedState(group);
         maybePickSortTab(group);

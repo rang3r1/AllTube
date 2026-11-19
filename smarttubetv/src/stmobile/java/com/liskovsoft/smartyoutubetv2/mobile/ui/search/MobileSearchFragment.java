@@ -63,6 +63,7 @@ public class MobileSearchFragment extends Fragment implements SearchView {
     private RecyclerView mSuggestionsList;
     private ProgressBar mProgressBar;
     private TextView mEmptyMessage;
+    private View mFilterButton;
     private VideoCardAdapter mResultsAdapter;
     private TagAdapter mTagsAdapter;
     private MediaServiceSearchTagProvider mTagsProvider;
@@ -99,6 +100,12 @@ public class MobileSearchFragment extends Fragment implements SearchView {
             }
         });
         view.findViewById(R.id.btn_clear).setOnClickListener(v -> mSearchInput.setText(""));
+        mFilterButton = view.findViewById(R.id.btn_filter);
+        mFilterButton.setOnClickListener(v -> {
+            if (mPresenter != null) {
+                mPresenter.onSearchSettingsClicked();
+            }
+        });
         view.findViewById(R.id.btn_voice).setOnClickListener(v -> startVoiceRecognition());
 
         int span = getResources().getInteger(R.integer.mobile_grid_span);
@@ -122,7 +129,7 @@ public class MobileSearchFragment extends Fragment implements SearchView {
             }
         });
 
-        mTagsAdapter = new TagAdapter(this::onTagPicked);
+        mTagsAdapter = new TagAdapter(this::onTagPicked, this::onTagLongPressed);
         mSuggestionsList.setLayoutManager(new LinearLayoutManager(getContext()));
         mSuggestionsList.setAdapter(mTagsAdapter);
 
@@ -217,6 +224,11 @@ public class MobileSearchFragment extends Fragment implements SearchView {
     @Override
     public void setTagsProvider(MediaServiceSearchTagProvider provider) {
         mTagsProvider = provider;
+        // Empty box on a fresh screen: offer recent searches (long-press one to remove it).
+        if (mSearchInput != null && mSearchInput.getText().length() == 0 && !mSearchSubmitted) {
+            mWantSuggestions = true;
+            loadSuggestions("");
+        }
     }
 
     @Override
@@ -323,8 +335,18 @@ public class MobileSearchFragment extends Fragment implements SearchView {
         hideKeyboard();
         mSearchInput.clearFocus();
         mSearchSubmitted = true;
+        updateFilterButton();
         mResultsList.scrollToPosition(0);
         mPresenter.onSearch(query);
+    }
+
+    // Filters (type/duration/date/sort) apply to submitted searches, so only offer them once
+    // results exist for a non-empty query.
+    private void updateFilterButton() {
+        if (mFilterButton != null) {
+            mFilterButton.setVisibility(
+                    mSearchSubmitted && !TextUtils.isEmpty(getSearchText()) ? View.VISIBLE : View.GONE);
+        }
     }
 
     private void onTagPicked(Tag tag) {
@@ -336,6 +358,13 @@ public class MobileSearchFragment extends Fragment implements SearchView {
         mSearchInput.setSelection(tag.tag.length());
         mSuppressWatcher = false;
         submitSearch(tag.tag);
+    }
+
+    // Same dialog as upstream: remove this entry from search history / clear all history.
+    private void onTagLongPressed(Tag tag) {
+        if (tag != null && mPresenter != null) {
+            mPresenter.onTagLongClicked(tag);
+        }
     }
 
     private void rebuildResults() {
@@ -375,12 +404,11 @@ public class MobileSearchFragment extends Fragment implements SearchView {
             if (mSuppressWatcher) {
                 return;
             }
+            updateFilterButton();
             if (s.length() == 0) {
-                mWantSuggestions = false;
-                mSuggestionsList.setVisibility(View.GONE);
-                if (mTagsAdapter != null) {
-                    mTagsAdapter.clear();
-                }
+                // Cleared box: show recent searches again (empty when history is disabled).
+                mWantSuggestions = true;
+                loadSuggestions("");
                 return;
             }
             mWantSuggestions = true;

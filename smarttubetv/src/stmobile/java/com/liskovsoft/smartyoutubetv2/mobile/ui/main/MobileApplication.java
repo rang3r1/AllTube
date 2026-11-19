@@ -19,6 +19,8 @@ import com.liskovsoft.smartyoutubetv2.common.app.views.SplashView;
 import com.liskovsoft.smartyoutubetv2.common.app.views.ViewManager;
 import com.liskovsoft.smartyoutubetv2.common.app.views.WebBrowserView;
 import com.liskovsoft.mediaserviceinterfaces.data.MediaGroup;
+import com.liskovsoft.sharedutils.prefs.GlobalPreferences;
+import com.liskovsoft.youtubeapi.service.internal.MediaServiceData;
 import com.liskovsoft.smartyoutubetv2.common.app.presenters.BrowsePresenter;
 import com.liskovsoft.smartyoutubetv2.common.app.presenters.PlaybackPresenter;
 import com.liskovsoft.smartyoutubetv2.common.app.presenters.service.SidebarService;
@@ -126,6 +128,7 @@ public class MobileApplication extends MainApplication {
         choosePlayerStyleOnce();
         hideScreenDimmingButtonOnce();
         keepVideoSizeUnderDialogsOnce();
+        hideShortsOnce();
 
         // Ticking a context-menu item in Settings > General just enables it (in its default slot)
         // instead of popping a "Position of …" picker after every tick — a TV-remote flow that
@@ -181,6 +184,23 @@ public class MobileApplication extends MainApplication {
         if (!prefs.getBoolean("dialog_resize_disabled", false)) {
             PlayerTweaksData.instance(this).setDontResizeVideoToFitDialogEnabled(true);
             prefs.edit().putBoolean("dialog_resize_disabled", true).apply();
+        }
+    }
+
+    /**
+     * AllTube zeigt keine Shorts: einmalig „Shorts überall ausblenden“ einschalten, genau wie der
+     * Schalter in Einstellungen > Allgemein (Filter plus Bereich „Shorts“ aus). Wer ihn danach
+     * wieder ausschaltet, behält das.
+     */
+    private void hideShortsOnce() {
+        SharedPreferences prefs = getSharedPreferences("mobile_player_prefs", MODE_PRIVATE);
+        if (!prefs.getBoolean("shorts_hidden", false)) {
+            GlobalPreferences.instance(this); // MediaServiceData braucht sie
+            MediaServiceData data = MediaServiceData.instance();
+            data.setContentHidden(MediaServiceData.CONTENT_SHORTS_ALL, true);
+            data.persistNow(); // sonst erst nach 5 s gespeichert, das Flag unten aber sofort
+            SidebarService.instance(this).enableSection(MediaGroup.TYPE_SHORTS, false);
+            prefs.edit().putBoolean("shorts_hidden", true).apply();
         }
     }
 

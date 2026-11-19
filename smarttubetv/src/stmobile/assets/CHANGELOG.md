@@ -1,5 +1,13 @@
 # Änderungen
 
+## November 2026 (ohne Shorts)
+
+- **Keine Shorts:** AllTube blendet Shorts überall aus, auch in den Vorschlägen im Player und als Tab auf Kanalseiten. Der Bereich „Shorts“ unter „Du“ entfällt. Wer Shorts sehen will, schaltet unter Einstellungen → Allgemein „Shorts überall ausblenden“ wieder aus.
+- **Suche:** Filter nach Typ, Dauer, Datum und Sortierung. Bei leerem Suchfeld erscheinen die letzten Suchen, lange tippen entfernt einen Eintrag oder leert den Verlauf.
+- **Updates** lädt AllTube mit dem Android-Download-Manager statt im Browser. Ist der Download fertig, auf die Benachrichtigung tippen und installieren.
+- **Vorschauvideos** auf Karten halten den Bildschirm nicht mehr wach.
+- **Statusleiste** verschwindet im Querformat-Player auch auf Geräten, die sie nach dem Drehen wieder einblenden.
+
 ## November 2026 (Navigation wie YouTube)
 
 - **Leiste unten** auf der Startseite: Start, Später ansehen, Abos, Playlists und Du. Unter „Du“ findest du alle weiteren Bereiche, auch Shorts und die Einstellungen.

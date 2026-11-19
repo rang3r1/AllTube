@@ -59,6 +59,7 @@ import com.liskovsoft.smartyoutubetv2.tv.R;
 import com.liskovsoft.smartyoutubetv2.tv.ui.playback.PlaybackFragment;
 import com.liskovsoft.smartyoutubetv2.tv.ui.playback.other.VideoPlayerGlue;
 import com.liskovsoft.youtubeapi.service.YouTubeServiceManager;
+import com.liskovsoft.youtubeapi.service.internal.MediaServiceData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -341,6 +342,19 @@ public class MobilePlaybackFragment extends PlaybackFragment {
         }
     }
 
+    /**
+     * The forced aspect ratio is sticky: VideoLoaderController only refreshes it for DASH formats,
+     * so a Short that arrives after a landscape video (or one that loads without DASH formats)
+     * kept the previous 16:9 and was stretched into a wide strip in the middle of the Shorts
+     * layout. A Short always follows its own frame size (ratio 0 = use the decoded size), whatever
+     * the user's global aspect-ratio setting says.
+     */
+    @Override
+    public void setAspectRatio(float ratio) {
+        Video video = PlaybackPresenter.instance(getContext()).getVideo();
+        super.setAspectRatio(video != null && video.isShorts ? PlayerData.ASPECT_RATIO_DEFAULT : ratio);
+    }
+
     @Override
     public void onPIPChanged(boolean isInPIP) {
         super.onPIPChanged(isInPIP);
@@ -362,6 +376,13 @@ public class MobilePlaybackFragment extends PlaybackFragment {
         if (isCasting() && video != null && video.videoId != null
                 && !video.videoId.equals(LoungeCast.videoId()) && getActivity() != null) {
             LoungeCast.cast(getActivity(), video.videoId, 0, this::updateCastOverlay);
+        }
+
+        // Drop the aspect ratio left over from the previous video (see setAspectRatio): a Short
+        // follows its own frame size, a regular video goes back to the user's setting.
+        if (video != null && getView() != null) {
+            super.setAspectRatio(video.isShorts ? PlayerData.ASPECT_RATIO_DEFAULT
+                    : PlayerData.instance(getContext()).getAspectRatio());
         }
 
         if (initPanelViews()) {
@@ -738,6 +759,12 @@ public class MobilePlaybackFragment extends PlaybackFragment {
 
     @Override
     public void updateSuggestions(VideoGroup group) {
+        // „Shorts überall ausblenden“ deckt die Vorschläge im Player nicht ab: Shorts-Regale hier verwerfen,
+        // einzelne Shorts filtert filterCurrent().
+        if (group != null && group.getAction() != VideoGroup.ACTION_SYNC && group.isShorts() && isShortsHidden()) {
+            return;
+        }
+
         // In strip mode (and in the Modern styles, which have More videos instead) the rows stay
         // empty — see mSuggestionGroups.
         if (!mStripMode && !mStyle.isModern()) {
@@ -804,17 +831,23 @@ public class MobilePlaybackFragment extends PlaybackFragment {
     /** The suggestions usually lead with the video that is already playing — skip it. */
     private List<Video> filterCurrent(List<Video> videos) {
         Video current = PlaybackPresenter.instance(getContext()).getVideo();
-        if (videos == null || current == null || current.videoId == null) {
+        String currentId = current != null ? current.videoId : null;
+        boolean hideShorts = isShortsHidden();
+        if (videos == null || (currentId == null && !hideShorts)) {
             return videos;
         }
 
         List<Video> result = new ArrayList<>(videos.size());
         for (Video video : videos) {
-            if (video != null && !current.videoId.equals(video.videoId)) {
+            if (video != null && (currentId == null || !currentId.equals(video.videoId)) &&!(hideShorts && video.isShorts)) {
                 result.add(video);
             }
         }
         return result;
+    }
+
+    private static boolean isShortsHidden() {
+        return MediaServiceData.instance().isContentHidden(MediaServiceData.CONTENT_SHORTS_ALL);
     }
 
     @Override

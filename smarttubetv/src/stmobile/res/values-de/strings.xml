@@ -129,4 +129,6 @@
     <string name="media_notification_next">Weiter</string>
 
     <string name="mobile_zoom_fit">Original</string>
+    <string name="mobile_search_filters">Suchfilter</string>
+    <string name="mobile_update_downloading">Update wird geladen … zum Installieren danach auf die Benachrichtigung tippen.</string>
 </resources>
