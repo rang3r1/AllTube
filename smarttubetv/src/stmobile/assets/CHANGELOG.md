@@ -7,6 +7,8 @@
 - **Updates** lädt AllTube mit dem Android-Download-Manager statt im Browser. Ist der Download fertig, auf die Benachrichtigung tippen und installieren.
 - **Vorschauvideos** auf Karten halten den Bildschirm nicht mehr wach.
 - **Statusleiste** verschwindet im Querformat-Player auch auf Geräten, die sie nach dem Drehen wieder einblenden.
+- **Anmeldung:** Nach der Freigabe im Browser erkennt AllTube die Anmeldung sofort, sobald du zurückkehrst.
+- **SmartTube 32.80** eingespielt, mit dessen Fehlerbehebungen für die Wiedergabe.
 
 ## November 2026 (Navigation wie YouTube)
 
