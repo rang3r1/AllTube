@@ -10,6 +10,7 @@
     <string name="mobile_signin_error_title">Sign-in failed</string>
     <string name="mobile_signin_error_generic">%1$s</string>
     <string name="mobile_signin_retry">Retry sign-in</string>
+    <string name="mobile_signin_wait_hint">After you allow access, it can take a few seconds until the app notices.</string>
     <string name="mobile_search_hint">Search YouTube</string>
     <string name="mobile_account_hint">Switch account</string>
     <string name="mobile_search_no_results">No results found.</string>

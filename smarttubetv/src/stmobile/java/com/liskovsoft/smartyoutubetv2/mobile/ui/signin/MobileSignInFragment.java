@@ -1,6 +1,7 @@
 package com.liskovsoft.smartyoutubetv2.mobile.ui.signin;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -24,8 +25,10 @@ import java.util.List;
 import com.liskovsoft.mediaserviceinterfaces.data.MediaGroup;
 import com.liskovsoft.mediaserviceinterfaces.oauth.Account;
 import com.liskovsoft.smartyoutubetv2.common.app.presenters.BrowsePresenter;
-import com.liskovsoft.smartyoutubetv2.common.app.presenters.SignInPresenter;
+import com.liskovsoft.sharedutils.mylogger.Log;
+import com.liskovsoft.sharedutils.rx.RxHelper;
 import com.liskovsoft.smartyoutubetv2.common.app.presenters.YTSignInPresenter;
+import com.liskovsoft.smartyoutubetv2.common.app.presenters.dialogs.AccountSelectionPresenter;
 import com.liskovsoft.smartyoutubetv2.common.app.views.SignInView;
 import com.liskovsoft.smartyoutubetv2.common.utils.Utils;
 import com.liskovsoft.smartyoutubetv2.mobile.ui.browse.MobileBrowseActivity;
@@ -33,9 +36,12 @@ import com.liskovsoft.smartyoutubetv2.mobile.ui.dialogs.MobileAppDialogActivity;
 import com.liskovsoft.smartyoutubetv2.tv.R;
 import com.liskovsoft.youtubeapi.service.YouTubeServiceManager;
 
+import io.reactivex.disposables.Disposable;
+
 /**
- * Single-phone sign-in screen. Implements {@link SignInView}, driven directly by
- * {@link YTSignInPresenter} (the OAuth device-code flow).
+ * Single-phone sign-in screen. Implements {@link SignInView} and runs the OAuth device-code flow
+ * itself through {@link DeviceCodeSignIn}, which mirrors {@link YTSignInPresenter} but polls again
+ * right away when the user comes back from the browser.
  *
  * The device-code flow is mandatory — it is the only flow that yields InnerTube-compatible
  * credentials, and Google blocks OAuth inside embedded WebViews. To make it seamless on a
@@ -44,7 +50,13 @@ import com.liskovsoft.youtubeapi.service.YouTubeServiceManager;
  * detects completion and closes this screen automatically.
  */
 public class MobileSignInFragment extends Fragment implements SignInView {
-    private SignInPresenter mPresenter;
+    private static final String TAG = MobileSignInFragment.class.getSimpleName();
+    // Copied from YTSignInPresenter, private there
+    private static final String SIGN_IN_URL = "https://yt.be/activate";
+    private static final String QR_SIGN_IN_URL = "https://youtube.com/qr/activate/";
+    private final DeviceCodeSignIn mSignIn = new DeviceCodeSignIn();
+    private Disposable mSignInAction;
+    private View mWaitHint;
     private View mTitleView;
     private View mInstructionsView;
     private View mCodeLabelView;
@@ -67,17 +79,6 @@ public class MobileSignInFragment extends Fragment implements SignInView {
     private int mAutoRetries;
     private final android.os.Handler mHandler = new android.os.Handler(android.os.Looper.getMainLooper());
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        // Use YTSignInPresenter directly. The base SignInPresenter is only a dispatcher:
-        // it drives nothing unless a sub-presenter was pre-"armed" by a start() call,
-        // which never happens when the screen is opened via startView(). Going direct
-        // runs the OAuth device-code flow (updateUserCode) immediately.
-        mPresenter = YTSignInPresenter.instance(getContext());
-        mPresenter.setView(this);
-    }
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -97,22 +98,48 @@ public class MobileSignInFragment extends Fragment implements SignInView {
         mDoneButton = view.findViewById(R.id.signin_done_button);
         mErrorBlock = view.findViewById(R.id.signin_error_block);
         mErrorBody = view.findViewById(R.id.signin_error_body);
+        mWaitHint = view.findViewById(R.id.signin_wait_hint);
 
         mBrowserButton.setEnabled(false);
         mBrowserButton.setOnClickListener(v -> openInBrowser());
         mDoneButton.setOnClickListener(v -> returnToApp());
         view.findViewById(R.id.signin_retry_button).setOnClickListener(v -> retrySignIn());
 
-        mPresenter.onViewInitialized();
+        startSignIn();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Back from the browser: the app was frozen meanwhile, so check the approval now
+        if (mBrowserLaunched) {
+            mSignIn.pollNow();
+        }
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         mHandler.removeCallbacksAndMessages(null);
-        if (mPresenter != null) {
-            mPresenter.onViewDestroyed();
-        }
+        RxHelper.disposeActions(mSignInAction);
+    }
+
+    /** Same callbacks as YTSignInPresenter.updateUserCode; a new call requests a fresh code. */
+    private void startSignIn() {
+        RxHelper.disposeActions(mSignInAction);
+        mSignInAction = mSignIn.observe().subscribe(
+                userCode -> showCode(userCode, SIGN_IN_URL, QR_SIGN_IN_URL + userCode.replace(" ", "-")),
+                error -> {
+                    Log.e(TAG, "Sign in error: %s", error.getMessage());
+                    showCode(error.getMessage(), "");
+                },
+                () -> {
+                    Context context = getContext();
+                    close();
+                    if (context != null) {
+                        AccountSelectionPresenter.instance(context).show(true);
+                    }
+                });
     }
 
     @Override
@@ -165,6 +192,7 @@ public class MobileSignInFragment extends Fragment implements SignInView {
         mCodeView.setVisibility(View.GONE);
         mBrowserButton.setVisibility(View.GONE);
         mDoneButton.setVisibility(View.GONE);
+        mWaitHint.setVisibility(View.GONE);
     }
 
     private void hideError() {
@@ -177,6 +205,7 @@ public class MobileSignInFragment extends Fragment implements SignInView {
         if (mDoneButton != null) {
             mDoneButton.setVisibility(mBrowserLaunched ? View.VISIBLE : View.GONE);
         }
+        mWaitHint.setVisibility(mBrowserLaunched ? View.VISIBLE : View.GONE);
     }
 
     /**
@@ -185,15 +214,12 @@ public class MobileSignInFragment extends Fragment implements SignInView {
      * dead disposable and calls {@code updateUserCode()} again, yielding a fresh code.
      */
     private void retrySignIn() {
-        if (mPresenter == null) {
-            return;
-        }
         mAutoRetries = 0; // manual retry restores the auto-retry budget
         mBrowserLaunched = false;
         hideError();
         mBrowserButton.setEnabled(false);
         mCodeView.setText("");
-        mPresenter.onViewInitialized();
+        startSignIn();
     }
 
     /**
@@ -202,10 +228,10 @@ public class MobileSignInFragment extends Fragment implements SignInView {
      * device-code fetch. Guards on still being added in case the user left during backoff.
      */
     private void reArmSignIn() {
-        if (mPresenter == null || !isAdded()) {
+        if (!isAdded()) {
             return;
         }
-        mPresenter.onViewInitialized();
+        startSignIn();
     }
 
     @Override
@@ -315,5 +341,6 @@ public class MobileSignInFragment extends Fragment implements SignInView {
         if (mDoneButton != null) {
             mDoneButton.setVisibility(View.VISIBLE);
         }
+        mWaitHint.setVisibility(View.VISIBLE);
     }
 }

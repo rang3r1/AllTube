@@ -79,6 +79,30 @@
             android:text="@string/mobile_signin_done_return"
             style="?android:attr/borderlessButtonStyle" />
 
+        <!-- Shown once the browser was opened: after Allow the app needs a few seconds to notice. -->
+        <LinearLayout
+            android:id="@+id/signin_wait_hint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <ProgressBar
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:indeterminate="true" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:text="@string/mobile_signin_wait_hint"
+                android:textColor="@color/mobile_text_secondary"
+                android:textSize="14sp" />
+        </LinearLayout>
+
         <!-- Inline error block. Shown when YTSignInPresenter delivers an error through
              the showCode(message, "") overload. Replaces the happy-path UI so the user
              sees only the failure and a Retry button. -->
