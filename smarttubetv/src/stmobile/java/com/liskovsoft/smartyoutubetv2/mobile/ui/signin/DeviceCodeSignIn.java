@@ -28,6 +28,7 @@ final class DeviceCodeSignIn {
 
     private final Object mLock = new Object();
     private boolean mPollNow;
+    private volatile String mVerificationUrl;
 
     /** Emits the user code, completes once the account is stored. */
     Observable<String> observe() {
@@ -44,11 +45,16 @@ final class DeviceCodeSignIn {
                 RxHelper.onError(emitter, "User code result is empty");
                 return;
             }
+            mVerificationUrl = userCode.getVerificationUrl();
             emitter.onNext(userCode.getUserCode());
 
             try {
                 for (int i = 0; i < POLL_ATTEMPTS; i++) {
                     awaitNextPoll(POLL_INTERVAL_MS);
+                    // Dispose interrupts the thread, but an interrupt during the HTTP call gets swallowed
+                    if (emitter.isDisposed()) {
+                        return;
+                    }
                     AccessToken token = auth.getAccessToken(userCode.getDeviceCode());
                     if (token != null && token.getRefreshToken() != null) {
                         persist.invoke(YouTubeAccountManager.instance(YouTubeSignInService.instance()), token.getRefreshToken());
@@ -64,6 +70,15 @@ final class DeviceCodeSignIn {
                 RxHelper.onError(emitter, "Storing the account failed: " + e);
             }
         });
+    }
+
+    /**
+     * Activation page Google returned with the code (usually google.com/device), null on upstream's fallback flow.
+     * Unlike youtube.com/activate it does not redirect to www.youtube.com, which Firefox hands back to AllTube.
+     */
+    @Nullable
+    String getVerificationUrl() {
+        return mVerificationUrl;
     }
 
     /** Ends the current wait, e.g. when the user returns from the browser. */

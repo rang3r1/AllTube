@@ -3,14 +3,17 @@
     <!-- Phone (stmobile) flavor strings. Kept separate from src/main so upstream merges stay clean. -->
     <!-- Override the launcher name for the phone build (src/main ships it as "SmartTube"). -->
     <string name="app_name" translatable="false">AllTube</string>
-    <string name="mobile_signin_instructions">Tap Continue below. A browser opens inside the app — sign in to your Google account, check the code matches, and tap Allow. Then come back here; this screen will close once Google confirms.</string>
-    <string name="mobile_signin_code_label">Your sign-in code</string>
+    <string name="mobile_signin_instructions">Tap “Continue in browser”, choose your Google account and confirm with “Allow”. If Google asks for a code, use the one below. The app continues on its own afterwards.</string>
+    <string name="mobile_signin_code_label">Your sign-in code (tap to copy)</string>
     <string name="mobile_signin_continue">Continue in browser</string>
     <string name="mobile_signin_done_return">Done? Return to app</string>
     <string name="mobile_signin_error_title">Sign-in failed</string>
     <string name="mobile_signin_error_generic">%1$s</string>
     <string name="mobile_signin_retry">Retry sign-in</string>
     <string name="mobile_signin_wait_hint">After you allow access, it can take a few seconds until the app notices.</string>
+    <string name="mobile_signin_title">Sign in to YouTube</string>
+    <string name="mobile_signin_code_copy">Copy code</string>
+    <string name="mobile_signin_code_copied">Code copied</string>
     <string name="mobile_search_hint">Search YouTube</string>
     <string name="mobile_account_hint">Switch account</string>
     <string name="mobile_search_no_results">No results found.</string>

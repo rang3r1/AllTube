@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Deutsche Texte der Handy-Version (stmobile). Englische Vorlage: values/strings.xml. -->
-    <string name="mobile_signin_instructions">Tippe unten auf „Weiter“. In der App öffnet sich ein Browser: Melde dich bei deinem Google-Konto an, prüfe, ob der Code übereinstimmt, und tippe auf „Zulassen“. Kehre dann hierher zurück; dieser Bildschirm schließt sich, sobald Google die Anmeldung bestätigt.</string>
-    <string name="mobile_signin_code_label">Dein Anmeldecode</string>
+    <string name="mobile_signin_instructions">Tippe auf „Im Browser fortfahren“, wähle dein Google-Konto und bestätige mit „Zulassen“. Fragt Google nach einem Code, nimm den Code unten. Danach geht es hier automatisch weiter.</string>
+    <string name="mobile_signin_code_label">Dein Anmeldecode (antippen zum Kopieren)</string>
     <string name="mobile_signin_continue">Im Browser fortfahren</string>
     <string name="mobile_signin_done_return">Fertig? Zurück zur App</string>
     <string name="mobile_signin_error_title">Anmeldung fehlgeschlagen</string>
     <string name="mobile_signin_retry">Erneut anmelden</string>
     <string name="mobile_signin_wait_hint">Nach der Freigabe kann es einige Sekunden dauern, bis die App dich erkennt.</string>
+    <string name="mobile_signin_title">Bei YouTube anmelden</string>
+    <string name="mobile_signin_code_copy">Code kopieren</string>
+    <string name="mobile_signin_code_copied">Code kopiert</string>
     <string name="mobile_search_hint">YouTube durchsuchen</string>
     <string name="mobile_account_hint">Konto wechseln</string>
     <string name="mobile_search_no_results">Keine Ergebnisse gefunden.</string>

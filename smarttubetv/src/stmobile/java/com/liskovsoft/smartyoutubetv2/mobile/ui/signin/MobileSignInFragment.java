@@ -1,9 +1,12 @@
 package com.liskovsoft.smartyoutubetv2.mobile.ui.signin;
 
 import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -12,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -103,9 +107,24 @@ public class MobileSignInFragment extends Fragment implements SignInView {
         mBrowserButton.setEnabled(false);
         mBrowserButton.setOnClickListener(v -> openInBrowser());
         mDoneButton.setOnClickListener(v -> returnToApp());
+        mCodeView.setOnClickListener(v -> copyCode());
         view.findViewById(R.id.signin_retry_button).setOnClickListener(v -> retrySignIn());
 
         startSignIn();
+    }
+
+    /** For when Google's page asks for the code instead of taking it from the link. */
+    private void copyCode() {
+        CharSequence code = mCodeView.getText();
+        if (TextUtils.isEmpty(code) || getContext() == null) {
+            return;
+        }
+        ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+        clipboard.setPrimaryClip(ClipData.newPlainText(getString(R.string.mobile_signin_code_label), code));
+        // Android 13+ confirms clipboard writes itself
+        if (Build.VERSION.SDK_INT < 33) {
+            Toast.makeText(getContext(), R.string.mobile_signin_code_copied, Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -128,7 +147,12 @@ public class MobileSignInFragment extends Fragment implements SignInView {
     private void startSignIn() {
         RxHelper.disposeActions(mSignInAction);
         mSignInAction = mSignIn.observe().subscribe(
-                userCode -> showCode(userCode, SIGN_IN_URL, QR_SIGN_IN_URL + userCode.replace(" ", "-")),
+                userCode -> {
+                    String url = mSignIn.getVerificationUrl();
+                    showCode(userCode, SIGN_IN_URL, url != null
+                            ? url + "?user_code=" + userCode.replace(" ", "-")
+                            : QR_SIGN_IN_URL + userCode.replace(" ", "-"));
+                },
                 error -> {
                     Log.e(TAG, "Sign in error: %s", error.getMessage());
                     showCode(error.getMessage(), "");

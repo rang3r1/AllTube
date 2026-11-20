@@ -13,18 +13,17 @@
     <LinearLayout
         android:id="@+id/signin_root"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical"
-        android:gravity="center_horizontal"
+        android:gravity="center"
         android:padding="24dp">
 
         <TextView
             android:id="@+id/signin_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
             android:gravity="center"
-            android:text="@string/signin_view_title"
+            android:text="@string/mobile_signin_title"
             android:textColor="@color/mobile_text_primary"
             android:textSize="22sp"
             android:textStyle="bold" />
@@ -54,7 +53,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:padding="8dp"
             android:gravity="center"
+            android:background="?android:attr/selectableItemBackground"
+            android:contentDescription="@string/mobile_signin_code_copy"
             android:textColor="@color/mobile_accent"
             android:textSize="36sp"
             android:textStyle="bold" />
@@ -64,6 +66,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
+            android:minHeight="52dp"
+            android:backgroundTint="@color/mobile_accent"
+            android:textColor="@color/brand_accent_on"
+            android:textAllCaps="false"
+            android:textSize="16sp"
+            android:textStyle="bold"
             android:text="@string/mobile_signin_continue" />
 
         <!-- Shown after the user has tapped Continue and may have completed sign-in
