@@ -135,4 +135,6 @@
     <string name="mobile_zoom_fit">Original</string>
     <string name="mobile_search_filters">Suchfilter</string>
     <string name="mobile_update_downloading">Update wird geladen … zum Installieren danach auf die Benachrichtigung tippen.</string>
+    <string name="mobile_channel_empty">Hier gibt es keine Videos, oder der Kanal konnte nicht geladen werden.</string>
+    <string name="mobile_channel_retry">Erneut versuchen</string>
 </resources>

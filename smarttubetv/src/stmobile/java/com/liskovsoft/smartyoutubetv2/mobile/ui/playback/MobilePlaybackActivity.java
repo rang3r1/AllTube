@@ -93,6 +93,40 @@ public class MobilePlaybackActivity extends PlaybackActivity {
     }
 
     /**
+     * Phone Back fix: leave the player through the Android back stack instead of the shared
+     * {@code startParentView()}.
+     *
+     * The shared path relaunches the parent screen with a plain intent. With singleTop screens
+     * (channel) under the player that stacked a second, reloaded copy of the channel. It also kept
+     * the ViewManager's "player only" mode (set when a video is opened from a link or notification
+     * while the app is in the background) alive after the player closed. Every later
+     * {@code addTop()} then moved the app to the background again: the app "fell out" on Back and
+     * vanished again when reopened from Recents.
+     *
+     * Here: player-only mode is always cleared. If the player sits on top of an app screen, just
+     * finish it and Android reveals that very screen. If the player is the root of its own task
+     * (opened from outside), finish too, so Back returns to the calling app like any Android app;
+     * only a root player without that origin (e.g. PIP expanded) still goes through the shared
+     * path, which brings up Home.
+     */
+    @Override
+    public void finishReally() {
+        boolean playerOnly = getViewManager().isPlayerOnlyModeEnabled();
+        getViewManager().enablePlayerOnlyMode(false);
+
+        if (isTaskRoot() && !playerOnly) {
+            super.finishReally();
+            return;
+        }
+
+        getViewManager().removeTop(this);
+        finishWithoutParent();
+        if (mMobileFragment != null) {
+            mMobileFragment.onFinish();
+        }
+    }
+
+    /**
      * PIP fix (#33): don't relaunch Home when the player drops into PIP.
      *
      * The shared base launches the parent activity here. On the phone, Home

@@ -4,11 +4,15 @@
     that yields InnerTube-compatible credentials), but the QR and second-device framing
     are dropped: the code is pre-filled into the URL and opened in an in-app Custom Tab.
 -->
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true"
     android:background="@color/mobile_background">
+
+<ScrollView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
 
     <LinearLayout
         android:id="@+id/signin_root"
@@ -149,3 +153,17 @@
         </LinearLayout>
     </LinearLayout>
 </ScrollView>
+
+    <!-- Visible way back (the other phone screens have one in their top bar). -->
+    <TextView
+        android:id="@+id/btn_back"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_gravity="top|start"
+        android:gravity="center"
+        android:paddingStart="16dp"
+        android:contentDescription="@string/mobile_back"
+        android:drawableStart="@drawable/ic_mobile_back"
+        android:drawableTint="@color/mobile_text_primary"
+        android:background="?android:attr/selectableItemBackground" />
+</FrameLayout>

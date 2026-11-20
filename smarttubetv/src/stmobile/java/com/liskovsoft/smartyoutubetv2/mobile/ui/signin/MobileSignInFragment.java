@@ -94,6 +94,12 @@ public class MobileSignInFragment extends Fragment implements SignInView {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        view.findViewById(R.id.btn_back).setOnClickListener(v -> {
+            if (getActivity() != null) {
+                getActivity().onBackPressed();
+            }
+        });
+
         mTitleView = view.findViewById(R.id.signin_title);
         mInstructionsView = view.findViewById(R.id.signin_instructions);
         mCodeLabelView = view.findViewById(R.id.signin_code_label);

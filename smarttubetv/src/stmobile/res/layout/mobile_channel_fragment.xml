@@ -219,5 +219,32 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:visibility="gone" />
+
+        <!-- Empty / error state, like Home and Search: shown when loading ends without any tab. -->
+        <LinearLayout
+            android:id="@+id/empty_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:padding="24dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/mobile_channel_empty"
+                android:textColor="@color/mobile_text_secondary"
+                android:textSize="15sp" />
+
+            <Button
+                android:id="@+id/empty_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/mobile_channel_retry" />
+        </LinearLayout>
     </FrameLayout>
 </LinearLayout>

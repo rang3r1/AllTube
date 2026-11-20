@@ -68,6 +68,7 @@ public class MobileChannelFragment extends Fragment implements ChannelView {
     private TabLayoutMediator mTabsMediator;
     private SwipeRefreshLayout mSwipeRefresh;
     private ProgressBar mProgressBar;
+    private View mEmptyContainer;
     private TextView mTitleView;
     private ChannelTabsAdapter mTabsAdapter;
     private boolean mSwipeRefreshing;
@@ -113,6 +114,14 @@ public class MobileChannelFragment extends Fragment implements ChannelView {
         mTabs = view.findViewById(R.id.channel_tabs);
         mSwipeRefresh = view.findViewById(R.id.swipe_refresh);
         mProgressBar = view.findViewById(R.id.progress_bar);
+        mEmptyContainer = view.findViewById(R.id.empty_container);
+        view.findViewById(R.id.empty_button).setOnClickListener(v -> {
+            String channelId = mPresenter != null ? mPresenter.getChannelId() : null;
+            if (channelId != null) {
+                mEmptyContainer.setVisibility(View.GONE);
+                mPresenter.openChannel(channelId);
+            }
+        });
         mTitleView = view.findViewById(R.id.channel_title);
         mSubscribeButton = view.findViewById(R.id.btn_subscribe);
         mBellButton = (ImageView) view.findViewById(R.id.btn_bell);
@@ -499,6 +508,7 @@ public class MobileChannelFragment extends Fragment implements ChannelView {
             return;
         }
         mTabsAdapter.appendGroup(group);
+        updateEmptyState(false);
         maybeResolveSubscribedState(group);
         maybePickSortTab(group);
     }
@@ -518,6 +528,15 @@ public class MobileChannelFragment extends Fragment implements ChannelView {
         }
         if (!show) {
             stopSwipeRefresh();
+        }
+        updateEmptyState(!show);
+    }
+
+    /** Shows the empty/error hint once loading is done and the channel produced no tab. */
+    private void updateEmptyState(boolean loadingDone) {
+        if (mEmptyContainer != null && mTabsAdapter != null) {
+            boolean empty = loadingDone && mTabsAdapter.getItemCount() == 0;
+            mEmptyContainer.setVisibility(empty ? View.VISIBLE : View.GONE);
         }
     }
 
