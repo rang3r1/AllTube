@@ -55,6 +55,7 @@ import com.liskovsoft.smartyoutubetv2.mobile.ui.base.CutoutGuard;
 import com.liskovsoft.smartyoutubetv2.mobile.ui.base.TextLinks;
 import com.liskovsoft.smartyoutubetv2.mobile.ui.browse.MobileSettingsActivity;
 import com.liskovsoft.smartyoutubetv2.mobile.ui.prefs.MobilePlayerStylePrefs;
+import com.liskovsoft.smartyoutubetv2.mobile.ui.base.Motion;
 import com.liskovsoft.smartyoutubetv2.tv.R;
 import com.liskovsoft.smartyoutubetv2.tv.ui.playback.PlaybackFragment;
 import com.liskovsoft.smartyoutubetv2.tv.ui.playback.other.VideoPlayerGlue;
@@ -1058,6 +1059,7 @@ public class MobilePlaybackFragment extends PlaybackFragment {
                 ? Math.max(0, uiPositionMs() - step)
                 : Math.min(uiDurationMs(), uiPositionMs() + step);
         uiSeekTo(target);
+        Motion.tick(playerView);
         // Show the seek bar briefly so the jump is visible; it auto-hides while playing.
         tickle();
     }
@@ -2439,7 +2441,10 @@ public class MobilePlaybackFragment extends PlaybackFragment {
             });
         }
         if (mBellBtn != null) {
-            mBellBtn.setOnClickListener(v -> showBellDialog());
+            mBellBtn.setOnClickListener(v -> {
+                Motion.tap(v);
+                showBellDialog();
+            });
         }
 
         mUpNextAdapter = new UpNextRowAdapter(
@@ -2462,16 +2467,20 @@ public class MobilePlaybackFragment extends PlaybackFragment {
         mPortraitLikeBtn = activity.findViewById(R.id.mobile_video_like_btn);
         mPortraitDislikeBtn = activity.findViewById(R.id.mobile_video_dislike_btn);
         if (mPortraitLikeBtn != null) {
-            mPortraitLikeBtn.setOnClickListener(v ->
-                    PlaybackPresenter.instance(getContext())
+            mPortraitLikeBtn.setOnClickListener(v -> {
+                Motion.pop(v);
+                PlaybackPresenter.instance(getContext())
                             .onButtonClicked(R.id.action_thumbs_up,
-                                    currentButtonState(R.id.action_thumbs_up)));
+                                    currentButtonState(R.id.action_thumbs_up));
+            });
         }
         if (mPortraitDislikeBtn != null) {
-            mPortraitDislikeBtn.setOnClickListener(v ->
-                    PlaybackPresenter.instance(getContext())
+            mPortraitDislikeBtn.setOnClickListener(v -> {
+                Motion.pop(v);
+                PlaybackPresenter.instance(getContext())
                             .onButtonClicked(R.id.action_thumbs_down,
-                                    currentButtonState(R.id.action_thumbs_down)));
+                                    currentButtonState(R.id.action_thumbs_down));
+            });
         }
 
         // Actions under the video. They go straight to the presenter, so they work whether or not
@@ -2499,8 +2508,12 @@ public class MobilePlaybackFragment extends PlaybackFragment {
     private void bindPanelAction(Activity activity, int viewId, int actionId) {
         View view = activity.findViewById(viewId);
         if (view != null) {
-            view.setOnClickListener(v ->
-                    PlaybackPresenter.instance(getContext()).onButtonClicked(actionId, currentButtonState(actionId)));
+            view.setOnClickListener(v -> {
+                if (actionId == R.id.action_subscribe) {
+                    Motion.pop(v);
+                }
+                PlaybackPresenter.instance(getContext()).onButtonClicked(actionId, currentButtonState(actionId));
+            });
         }
     }
 
@@ -2521,14 +2534,18 @@ public class MobilePlaybackFragment extends PlaybackFragment {
 
             if (mShortsLikeBtn != null) {
                 // Pass the CURRENT state so the controller toggles correctly (BUTTON_ON -> remove).
-                mShortsLikeBtn.setOnClickListener(v ->
-                        PlaybackPresenter.instance(getContext())
-                                .onButtonClicked(R.id.action_thumbs_up, currentButtonState(R.id.action_thumbs_up)));
+                mShortsLikeBtn.setOnClickListener(v -> {
+                    Motion.pop(v);
+                    PlaybackPresenter.instance(getContext())
+                                .onButtonClicked(R.id.action_thumbs_up, currentButtonState(R.id.action_thumbs_up));
+                });
             }
             if (mShortsDislikeBtn != null) {
-                mShortsDislikeBtn.setOnClickListener(v ->
-                        PlaybackPresenter.instance(getContext())
-                                .onButtonClicked(R.id.action_thumbs_down, currentButtonState(R.id.action_thumbs_down)));
+                mShortsDislikeBtn.setOnClickListener(v -> {
+                    Motion.pop(v);
+                    PlaybackPresenter.instance(getContext())
+                                .onButtonClicked(R.id.action_thumbs_down, currentButtonState(R.id.action_thumbs_down));
+                });
             }
             if (mShortsCommentsBtn != null) {
                 // Comments are triggered via the chat action (CommentsController listens for action_chat).

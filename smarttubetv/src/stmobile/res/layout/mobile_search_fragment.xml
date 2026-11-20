@@ -108,6 +108,9 @@
             android:background="@color/mobile_background"
             android:visibility="gone" />
 
+        <!-- Placeholder cards while the screen has no content yet (Motion.showLoading). -->
+        <include layout="@layout/mobile_skeleton" />
+
         <ProgressBar
             android:id="@+id/progress_bar"
             android:layout_width="wrap_content"

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The first items of a freshly filled list come in one after another. -->
+<layoutAnimation xmlns:android="http://schemas.android.com/apk/res/android"
+    android:animation="@anim/mobile_content_in"
+    android:delay="12%"
+    android:animationOrder="normal" />

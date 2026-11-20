@@ -21,6 +21,7 @@ import com.liskovsoft.smartyoutubetv2.common.app.models.data.VideoGroup;
 import com.liskovsoft.smartyoutubetv2.common.app.presenters.ChannelUploadsPresenter;
 import com.liskovsoft.smartyoutubetv2.common.app.views.ChannelUploadsView;
 import com.liskovsoft.smartyoutubetv2.mobile.ui.browse.VideoCardAdapter;
+import com.liskovsoft.smartyoutubetv2.mobile.ui.base.Motion;
 import com.liskovsoft.smartyoutubetv2.tv.R;
 
 /**
@@ -35,6 +36,7 @@ public class MobileChannelUploadsFragment extends Fragment implements ChannelUpl
     private RecyclerView mGrid;
     private SwipeRefreshLayout mSwipeRefresh;
     private ProgressBar mProgressBar;
+    private View mSkeleton;
     private TextView mTitleView;
     private VideoCardAdapter mAdapter;
     private boolean mProgressShowing;
@@ -54,6 +56,7 @@ public class MobileChannelUploadsFragment extends Fragment implements ChannelUpl
         mGrid = view.findViewById(R.id.uploads_grid);
         mSwipeRefresh = view.findViewById(R.id.swipe_refresh);
         mProgressBar = view.findViewById(R.id.progress_bar);
+        mSkeleton = view.findViewById(R.id.skeleton);
         mTitleView = view.findViewById(R.id.uploads_title);
 
         view.findViewById(R.id.btn_back).setOnClickListener(v -> {
@@ -145,9 +148,8 @@ public class MobileChannelUploadsFragment extends Fragment implements ChannelUpl
         mProgressShowing = show;
         // While pull-to-refresh is active the SwipeRefreshLayout spinner stands in for
         // the centre bar; don't show both.
-        if (mProgressBar != null) {
-            mProgressBar.setVisibility(show && !mSwipeRefreshing ? View.VISIBLE : View.GONE);
-        }
+        // Placeholder cards while empty, the spinner while loading more.
+        Motion.showLoading(mProgressBar, mSkeleton, mGrid, show, mAdapter == null || mAdapter.getItemCount() == 0, mSwipeRefreshing);
         if (!show) {
             stopSwipeRefresh();
         }

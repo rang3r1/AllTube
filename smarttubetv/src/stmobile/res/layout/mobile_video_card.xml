@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Card root width and thumbnail (frame) height are set in code (VideoCardAdapter). -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:stateListAnimator="@animator/mobile_press_scale"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:orientation="vertical"

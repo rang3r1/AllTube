@@ -27,6 +27,7 @@ import com.liskovsoft.smartyoutubetv2.common.app.models.data.Video;
 import com.liskovsoft.smartyoutubetv2.common.app.models.playback.manager.PlayerUI;
 import com.liskovsoft.smartyoutubetv2.common.app.models.playback.ui.SeekBarSegment;
 import com.liskovsoft.smartyoutubetv2.common.app.presenters.PlaybackPresenter;
+import com.liskovsoft.smartyoutubetv2.mobile.ui.base.Motion;
 import com.liskovsoft.smartyoutubetv2.tv.R;
 import com.liskovsoft.smartyoutubetv2.tv.ui.playback.other.VideoPlayerGlue;
 import com.liskovsoft.smartyoutubetv2.tv.ui.playback.previewtimebar.StoryboardManager;
@@ -175,8 +176,14 @@ final class ModernPlayerChrome {
             }
         });
         mChannel.setOnClickListener(v -> clickAction(R.id.action_channel));
-        mLike.setOnClickListener(v -> clickAction(R.id.action_thumbs_up));
-        mDislike.setOnClickListener(v -> clickAction(R.id.action_thumbs_down));
+        mLike.setOnClickListener(v -> {
+            Motion.pop(v);
+            clickAction(R.id.action_thumbs_up);
+        });
+        mDislike.setOnClickListener(v -> {
+            Motion.pop(v);
+            clickAction(R.id.action_thumbs_down);
+        });
         mRoot.findViewById(R.id.modern_comments).setOnClickListener(v -> clickAction(R.id.action_chat));
         mRoot.findViewById(R.id.modern_save).setOnClickListener(v -> clickAction(R.id.action_playlist_add));
         mRoot.findViewById(R.id.modern_share).setOnClickListener(v -> MobileShareDialog.show(mActivity)); // "start at" option (#83)

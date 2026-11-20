@@ -43,6 +43,7 @@ import com.liskovsoft.smartyoutubetv2.common.app.presenters.ChannelPresenter;
 import com.liskovsoft.smartyoutubetv2.common.app.views.ChannelView;
 import com.liskovsoft.smartyoutubetv2.common.misc.MediaServiceManager;
 import com.liskovsoft.smartyoutubetv2.mobile.ui.browse.VideoCardAdapter;
+import com.liskovsoft.smartyoutubetv2.mobile.ui.base.Motion;
 import com.liskovsoft.smartyoutubetv2.tv.R;
 import com.liskovsoft.youtubeapi.service.YouTubeServiceManager;
 import com.liskovsoft.youtubeapi.service.internal.MediaServiceData;
@@ -68,6 +69,7 @@ public class MobileChannelFragment extends Fragment implements ChannelView {
     private TabLayoutMediator mTabsMediator;
     private SwipeRefreshLayout mSwipeRefresh;
     private ProgressBar mProgressBar;
+    private View mSkeleton;
     private View mEmptyContainer;
     private TextView mTitleView;
     private ChannelTabsAdapter mTabsAdapter;
@@ -114,6 +116,7 @@ public class MobileChannelFragment extends Fragment implements ChannelView {
         mTabs = view.findViewById(R.id.channel_tabs);
         mSwipeRefresh = view.findViewById(R.id.swipe_refresh);
         mProgressBar = view.findViewById(R.id.progress_bar);
+        mSkeleton = view.findViewById(R.id.skeleton);
         mEmptyContainer = view.findViewById(R.id.empty_container);
         view.findViewById(R.id.empty_button).setOnClickListener(v -> {
             String channelId = mPresenter != null ? mPresenter.getChannelId() : null;
@@ -249,7 +252,10 @@ public class MobileChannelFragment extends Fragment implements ChannelView {
 
         updateSubscribeButton();
         mSubscribeButton.setVisibility(View.VISIBLE);
-        mSubscribeButton.setOnClickListener(v -> toggleSubscribe());
+        mSubscribeButton.setOnClickListener(v -> {
+            Motion.pop(v);
+            toggleSubscribe();
+        });
     }
 
     private void updateSubscribeButton() {
@@ -304,7 +310,10 @@ public class MobileChannelFragment extends Fragment implements ChannelView {
         boolean show = mSubscribed && mNotificationStates != null && !mNotificationStates.isEmpty();
         mBellButton.setVisibility(show ? View.VISIBLE : View.GONE);
         if (show) {
-            mBellButton.setOnClickListener(v -> showBellDialog());
+            mBellButton.setOnClickListener(v -> {
+                Motion.tap(v);
+                showBellDialog();
+            });
         }
     }
 
@@ -523,9 +532,8 @@ public class MobileChannelFragment extends Fragment implements ChannelView {
     public void showProgressBar(boolean show) {
         // While pull-to-refresh is active the SwipeRefreshLayout spinner stands in for
         // the centre bar; don't show both.
-        if (mProgressBar != null) {
-            mProgressBar.setVisibility(show && !mSwipeRefreshing ? View.VISIBLE : View.GONE);
-        }
+        // Placeholder cards while empty, the spinner while loading more.
+        Motion.showLoading(mProgressBar, mSkeleton, mPager, show, mTabsAdapter == null || mTabsAdapter.getItemCount() == 0, mSwipeRefreshing);
         if (!show) {
             stopSwipeRefresh();
         }

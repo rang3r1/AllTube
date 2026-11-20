@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.liskovsoft.mediaserviceinterfaces.data.CommentItem;
 import com.liskovsoft.sharedutils.helpers.Helpers;
+import com.liskovsoft.smartyoutubetv2.mobile.ui.base.Motion;
 import com.liskovsoft.smartyoutubetv2.tv.R;
 
 import java.util.ArrayList;
@@ -262,6 +263,7 @@ public class MobileCommentsAdapter extends RecyclerView.Adapter<MobileCommentsAd
         // The like toggle goes through the same key as the replies thread — without it the
         // request can't be built (replies themselves have no key).
         View.OnClickListener likeListener = item.getNestedCommentsKey() == null ? null : v -> {
+            Motion.pop(h.likeIcon);
             if (mLikeClick != null) {
                 mLikeClick.onComment(item);
             }

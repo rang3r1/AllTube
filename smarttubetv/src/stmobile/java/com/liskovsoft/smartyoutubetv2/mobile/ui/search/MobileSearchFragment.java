@@ -37,6 +37,7 @@ import com.liskovsoft.smartyoutubetv2.common.app.models.search.vineyard.Tag;
 import com.liskovsoft.smartyoutubetv2.common.app.presenters.SearchPresenter;
 import com.liskovsoft.smartyoutubetv2.common.app.views.SearchView;
 import com.liskovsoft.smartyoutubetv2.mobile.ui.browse.VideoCardAdapter;
+import com.liskovsoft.smartyoutubetv2.mobile.ui.base.Motion;
 import com.liskovsoft.smartyoutubetv2.tv.R;
 
 import java.util.ArrayList;
@@ -62,6 +63,7 @@ public class MobileSearchFragment extends Fragment implements SearchView {
     private SwipeRefreshLayout mSwipeRefresh;
     private RecyclerView mSuggestionsList;
     private ProgressBar mProgressBar;
+    private View mSkeleton;
     private TextView mEmptyMessage;
     private View mFilterButton;
     private VideoCardAdapter mResultsAdapter;
@@ -92,6 +94,7 @@ public class MobileSearchFragment extends Fragment implements SearchView {
         mSwipeRefresh = view.findViewById(R.id.swipe_refresh);
         mSuggestionsList = view.findViewById(R.id.suggestions_list);
         mProgressBar = view.findViewById(R.id.progress_bar);
+        mSkeleton = view.findViewById(R.id.skeleton);
         mEmptyMessage = view.findViewById(R.id.empty_message);
 
         view.findViewById(R.id.btn_back).setOnClickListener(v -> {
@@ -236,9 +239,8 @@ public class MobileSearchFragment extends Fragment implements SearchView {
         mProgressShowing = show;
         // While pull-to-refresh is active the SwipeRefreshLayout spinner stands in for
         // the centre bar; don't show both.
-        if (mProgressBar != null) {
-            mProgressBar.setVisibility(show && !mSwipeRefreshing ? View.VISIBLE : View.GONE);
-        }
+        // Placeholder cards while empty, the spinner while loading more.
+        Motion.showLoading(mProgressBar, mSkeleton, mResultsList, show, mGroups.isEmpty(), mSwipeRefreshing);
         if (!show) {
             stopSwipeRefresh();
         }

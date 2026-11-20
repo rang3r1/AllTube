@@ -27,6 +27,7 @@ import com.liskovsoft.smartyoutubetv2.common.app.presenters.service.SidebarServi
 import com.liskovsoft.smartyoutubetv2.common.app.presenters.settings.GeneralSettingsPresenter;
 import com.liskovsoft.smartyoutubetv2.common.prefs.AppPrefs;
 import com.liskovsoft.smartyoutubetv2.common.prefs.PlayerTweaksData;
+import com.liskovsoft.smartyoutubetv2.mobile.ui.base.Motion;
 import com.liskovsoft.smartyoutubetv2.mobile.ui.browse.MobileBrowseActivity;
 import com.liskovsoft.smartyoutubetv2.mobile.ui.channel.MobileChannelActivity;
 import com.liskovsoft.smartyoutubetv2.mobile.ui.channeluploads.MobileChannelUploadsActivity;
@@ -238,7 +239,8 @@ public class MobileApplication extends MainApplication {
             // A video opened from a screen above the player (channel opened in the player) reuses
             // that player instead of stacking a second one that shares the same presenter.
             intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-            mResumedActivity.startActivity(intent);
+            // Grow the player out of the tapped card (null: the theme's normal transition).
+            mResumedActivity.startActivity(intent, Motion.launchOptions());
             return;
         }
         super.startActivity(intent);

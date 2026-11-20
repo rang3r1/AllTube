@@ -89,6 +89,9 @@
                     android:paddingBottom="8dp" />
             </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
+            <!-- Placeholder cards while the screen has no content yet (Motion.showLoading). -->
+            <include layout="@layout/mobile_skeleton" />
+
             <ProgressBar
                 android:id="@+id/progress_bar"
                 android:layout_width="wrap_content"
@@ -116,6 +119,7 @@
 
                 <Button
                     android:id="@+id/empty_button"
+                style="@style/Widget.SmarterTube.Button.Tonal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"

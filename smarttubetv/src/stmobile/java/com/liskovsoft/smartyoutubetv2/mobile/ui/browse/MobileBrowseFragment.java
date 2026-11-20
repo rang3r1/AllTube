@@ -1,5 +1,8 @@
 package com.liskovsoft.smartyoutubetv2.mobile.ui.browse;
 
+import android.view.animation.OvershootInterpolator;
+import android.graphics.drawable.Drawable;
+import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
@@ -45,6 +48,7 @@ import com.liskovsoft.smartyoutubetv2.common.app.presenters.settings.AccountSett
 import com.liskovsoft.smartyoutubetv2.common.app.views.BrowseView;
 import com.liskovsoft.smartyoutubetv2.common.misc.MediaServiceManager;
 import com.liskovsoft.smartyoutubetv2.mobile.ui.about.MobileAboutActivity;
+import com.liskovsoft.smartyoutubetv2.mobile.ui.base.Motion;
 import com.liskovsoft.smartyoutubetv2.tv.R;
 
 import java.util.List;
@@ -64,6 +68,7 @@ public class MobileBrowseFragment extends Fragment implements BrowseView, MediaS
     private SwipeRefreshLayout mSwipeRefresh;
     private RecyclerView mContentList;
     private ProgressBar mProgressBar;
+    private View mSkeleton;
     private TextView mEmptyMessage;
     private View mEmptyContainer;
     private Button mEmptyButton;
@@ -98,6 +103,7 @@ public class MobileBrowseFragment extends Fragment implements BrowseView, MediaS
         mContentList = view.findViewById(R.id.content_list);
         mSwipeRefresh = view.findViewById(R.id.swipe_refresh);
         mProgressBar = view.findViewById(R.id.progress_bar);
+        mSkeleton = view.findViewById(R.id.skeleton);
         mEmptyMessage = view.findViewById(R.id.empty_message);
         mEmptyContainer = view.findViewById(R.id.empty_container);
         mEmptyButton = view.findViewById(R.id.empty_button);
@@ -169,10 +175,16 @@ public class MobileBrowseFragment extends Fragment implements BrowseView, MediaS
     private void setupBottomNav(View view) {
         mBottomNav = view.findViewById(R.id.mobile_bottom_nav);
         bindNavTab(view, R.id.nav_home, MediaGroup.TYPE_HOME);
-        view.findViewById(R.id.nav_watch_later).setOnClickListener(v -> openWatchLater());
+        view.findViewById(R.id.nav_watch_later).setOnClickListener(v -> {
+            Motion.tap(v);
+            openWatchLater();
+        });
         bindNavTab(view, R.id.nav_subscriptions, MediaGroup.TYPE_SUBSCRIPTIONS);
         bindNavTab(view, R.id.nav_playlists, MediaGroup.TYPE_USER_PLAYLISTS);
-        view.findViewById(R.id.nav_you).setOnClickListener(v -> mDrawer.openDrawer(GravityCompat.START));
+        view.findViewById(R.id.nav_you).setOnClickListener(v -> {
+            Motion.tap(v);
+            mDrawer.openDrawer(GravityCompat.START);
+        });
     }
 
     /** Opens YouTube's built-in Watch later playlist exactly like tapping its card in Playlists. */
@@ -198,6 +210,7 @@ public class MobileBrowseFragment extends Fragment implements BrowseView, MediaS
         View tab = root.findViewById(tabId);
         tab.setTag(sectionId);
         tab.setOnClickListener(v -> {
+            Motion.tap(v);
             if (mCurrentSectionId == sectionId) {
                 mContentList.smoothScrollToPosition(0); // as in YouTube: re-tap jumps to the top
             } else if (mPresenter != null) {
@@ -224,10 +237,32 @@ public class MobileBrowseFragment extends Fragment implements BrowseView, MediaS
         int off = ContextCompat.getColor(requireContext(), R.color.mobile_text_secondary);
         for (int i = 0; i < mBottomNav.getChildCount(); i++) {
             ViewGroup tab = (ViewGroup) mBottomNav.getChildAt(i);
-            int color = Integer.valueOf(mCurrentSectionId).equals(tab.getTag()) ? on : off;
-            ((ImageView) tab.getChildAt(0)).setImageTintList(ColorStateList.valueOf(color));
+            boolean selected = Integer.valueOf(mCurrentSectionId).equals(tab.getTag());
+            int color = selected ? on : off;
+            ImageView icon = (ImageView) tab.getChildAt(0);
+            icon.setImageTintList(ColorStateList.valueOf(color));
             ((TextView) tab.getChildAt(1)).setTextColor(color);
+            showNavIndicator(icon, selected);
         }
+    }
+
+    /** Material 3 style marker behind the active tab's icon; it fades in and the icon settles. */
+    private void showNavIndicator(ImageView icon, boolean selected) {
+        boolean shown = icon.getBackground() != null;
+        if (selected == shown) {
+            return;
+        }
+        if (!selected) {
+            icon.setBackground(null);
+            return;
+        }
+        Drawable marker = ContextCompat.getDrawable(requireContext(), R.drawable.mobile_nav_indicator).mutate();
+        icon.setBackground(marker);
+        ObjectAnimator.ofInt(marker, "alpha", 0, 255).setDuration(220).start();
+        icon.setScaleX(0.8f);
+        icon.setScaleY(0.8f);
+        icon.animate().scaleX(1f).scaleY(1f).setDuration(220)
+                .setInterpolator(new OvershootInterpolator(2f)).start();
     }
 
     private void onSectionPicked(BrowseSection section) {
@@ -452,9 +487,8 @@ public class MobileBrowseFragment extends Fragment implements BrowseView, MediaS
         mProgressShowing = show;
         // While pull-to-refresh is active the SwipeRefreshLayout spinner stands in for
         // the centre bar; don't show both.
-        if (mProgressBar != null) {
-            mProgressBar.setVisibility(show && !mSwipeRefreshing ? View.VISIBLE : View.GONE);
-        }
+        // Placeholder cards while empty, the spinner while loading more.
+        Motion.showLoading(mProgressBar, mSkeleton, mContentList, show, isEmpty(), mSwipeRefreshing);
         if (!show) {
             stopSwipeRefresh();
         }
