@@ -298,7 +298,9 @@ public class MobileBrowseFragment extends Fragment implements BrowseView, MediaS
     public void onDestroy() {
         super.onDestroy();
         MediaServiceManager.instance().removeAccountListener(this);
-        if (mPresenter != null) {
+        // The presenter is shared: if a newer Home already took it over (Android relaunching Home
+        // after an app update), tearing it down here would cancel that Home's loading.
+        if (mPresenter != null && (mPresenter.getView() == null || mPresenter.getView() == this)) {
             mPresenter.onViewDestroyed();
         }
     }

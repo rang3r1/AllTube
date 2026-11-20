@@ -11,6 +11,7 @@
 - **Kanalseite** ohne Videos zeigt einen Hinweis und „Erneut versuchen“.
 - **Material 3:** Snackbars, Menüs und Tabs im aktuellen Android-Stil in den AllTube-Farben.
 - **Anmeldung** über google.com/device, damit Firefox nicht mit neuem Code zurückspringt.
+- **Nach einem Update** bleibt die Startseite nicht mehr leer, und der Hinweis „Was ist neu“ geht nicht verloren, wenn Android die App neu startet.
 
 ## November 2026 (ohne Shorts)
 

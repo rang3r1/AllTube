@@ -17,6 +17,8 @@ import com.liskovsoft.sharedutils.mylogger.Log;
 import com.liskovsoft.smartyoutubetv2.tv.BuildConfig;
 import com.liskovsoft.smartyoutubetv2.tv.R;
 
+import java.lang.ref.WeakReference;
+
 /**
  * Update notices shown when the phone Home screen opens:
  * <ul>
@@ -41,21 +43,29 @@ public final class LaunchUpdateNotices {
     private static final int SNACKBAR_DURATION_MS = 15_000;
 
     private static boolean sRanThisProcess;
+    private static WeakReference<Activity> sOwner = new WeakReference<>(null);
 
     private LaunchUpdateNotices() {
     }
 
     /** {@code done} runs once the "What's new" dialog is closed, or when no dialog will be shown. */
     public static void onHomeCreated(Activity activity, Runnable done) {
-        if (sRanThisProcess) {
-            done.run();
-            return;
-        }
-        sRanThisProcess = true;
-
         SharedPreferences prefs = prefs(activity);
         String current = BuildConfig.VERSION_NAME;
         String lastSeen = prefs.getString(KEY_LAST_SEEN_VERSION, null);
+        if (sRanThisProcess) {
+            // Run again only if the Home that owed the popup died before showing or closing it
+            // (Android relaunches Home right after an app update).
+            Activity owner = sOwner.get();
+            boolean ownerGone = owner == null || owner.isFinishing() || owner.isDestroyed();
+            if (!ownerGone || lastSeen == null || current.equals(lastSeen)) {
+                done.run();
+                return;
+            }
+        }
+        sRanThisProcess = true;
+        sOwner = new WeakReference<>(activity);
+
         if (lastSeen == null && isFreshInstall(activity)) {
             // Nothing to announce to someone who just installed this version.
             prefs.edit().putString(KEY_LAST_SEEN_VERSION, current).apply();
@@ -83,8 +93,9 @@ public final class LaunchUpdateNotices {
                     Runnable updateNotice = hasUpdate ? () -> showUpdateSnackbar(activity, result) : null;
 
                     if (whatsNewOwed) {
-                        prefs.edit().putString(KEY_LAST_SEEN_VERSION, current).apply();
                         if (showWhatsNew(activity, result.installedRelease, () -> {
+                            // Seen only once the user closed it, not when the screen went away under it.
+                            prefs.edit().putString(KEY_LAST_SEEN_VERSION, current).apply();
                             if (updateNotice != null) {
                                 updateNotice.run();
                             }
@@ -92,6 +103,7 @@ public final class LaunchUpdateNotices {
                         })) {
                             return; // the update notice follows the dialog
                         }
+                        prefs.edit().putString(KEY_LAST_SEEN_VERSION, current).apply();
                     }
                     if (updateNotice != null) {
                         updateNotice.run();
