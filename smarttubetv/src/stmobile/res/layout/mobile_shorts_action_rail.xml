@@ -24,6 +24,7 @@
 
         <ImageView
             android:id="@+id/mobile_shorts_like_btn"
+            android:contentDescription="@string/action_like"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:padding="8dp"
@@ -57,6 +58,7 @@
 
         <ImageView
             android:id="@+id/mobile_shorts_dislike_btn"
+            android:contentDescription="@string/action_dislike"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:padding="8dp"
@@ -77,6 +79,7 @@
 
         <ImageView
             android:id="@+id/mobile_shorts_comments_btn"
+            android:contentDescription="@string/open_comments"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:padding="8dp"
@@ -110,6 +113,7 @@
 
         <ImageView
             android:id="@+id/mobile_shorts_channel_btn"
+            android:contentDescription="@string/open_channel"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:padding="8dp"

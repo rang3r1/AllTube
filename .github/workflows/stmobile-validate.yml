@@ -45,6 +45,26 @@ jobs:
             smarttubetv/src/main/java/com/liskovsoft/smartyoutubetv2/tv/ui/main/MainApplication.java
           echo "OK: all hooks present"
 
+      # A phone layout with the same name as an upstream one hides it completely. If upstream adds
+      # a view ID there, the code finds null at runtime while the build stays green.
+      - name: Verify phone layout copies still have every upstream view ID
+        shell: bash
+        run: |
+          set -e
+          ids() { grep -oE '@\+?id/[A-Za-z0-9_]+' "$1" | sed -E 's#@\+?id/##' | sort -u; }
+          fail=0
+          for copy in smarttubetv/src/stmobile/res/layout/*.xml; do
+            upstream="smarttubetv/src/main/res/layout/$(basename "$copy")"
+            [ -f "$upstream" ] || continue
+            missing=$(comm -23 <(ids "$upstream") <(ids "$copy"))
+            if [ -n "$missing" ]; then
+              echo "::error file=$copy::IDs from $upstream missing in the phone copy: $(echo $missing)"
+              fail=1
+            fi
+          done
+          [ "$fail" = 0 ] && echo "OK: layout copies complete"
+          exit $fail
+
       - name: Build the phone APK and run its unit tests
         run: |
           chmod +x gradlew

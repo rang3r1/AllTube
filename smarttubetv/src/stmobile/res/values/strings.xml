@@ -156,4 +156,7 @@
     <!-- Pinch to zoom in the landscape player (#85) -->
     <string name="mobile_zoom_fit">Original</string>
 
+    <!-- Channel page empty / error state -->
+    <string name="mobile_channel_empty">No videos here, or the channel couldn\'t be loaded.</string>
+    <string name="mobile_channel_retry">Try again</string>
 </resources>

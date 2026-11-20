@@ -13,7 +13,6 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.liskovsoft.mediaserviceinterfaces.ServiceManager;
-import com.liskovsoft.smartyoutubetv2.common.app.presenters.PlaybackPresenter;
 import com.liskovsoft.smartyoutubetv2.mobile.notifications.NotificationPollWorker;
 import com.liskovsoft.smartyoutubetv2.mobile.stats.StatsDialogs;
 import com.liskovsoft.smartyoutubetv2.mobile.ui.base.MobileActivity;
@@ -131,12 +130,9 @@ public class MobileBrowseActivity extends MobileActivity {
         if (fragment instanceof MobileBrowseFragment && ((MobileBrowseFragment) fragment).handleBack()) {
             return;
         }
-        // Finishing the last screen would also end the video playing in the PiP window.
-        if (PlaybackPresenter.instance(this).isInPipMode()) {
-            moveTaskToBack(true);
-            return;
-        }
-        super.onBackPressed();
+        // Back on Home sends the app to the background instead of finishing it (like the YouTube
+        // app): the next start skips the splash and keeps the state, and a PiP video keeps playing.
+        moveTaskToBack(true);
     }
 
     @Override

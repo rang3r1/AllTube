@@ -47,7 +47,7 @@
             android:paddingTop="1dp"
             android:paddingBottom="1dp"
             android:textColor="#FFFFFFFF"
-            android:textSize="11sp"
+            android:textSize="12sp"
             android:textStyle="bold"
             android:visibility="gone" />
     </FrameLayout>

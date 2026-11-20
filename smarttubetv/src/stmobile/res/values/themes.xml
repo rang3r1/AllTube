@@ -1,12 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Phone flavor theme. AppCompat (not Leanback) so touch widgets render correctly. -->
-    <style name="Theme.SmarterTube.Mobile" parent="Theme.AppCompat.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/brand_primary</item>
+    <!-- Phone flavor theme. Material 3 (not Leanback) so touch widgets render correctly and the
+         Material widgets (tabs, bottom sheets, snackbars) get the current look. M3 colors its
+         widgets from the color roles, so every role is mapped to the brand colors here; otherwise
+         the M3 baseline purple would show up. -->
+    <style name="Theme.SmarterTube.Mobile" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/brand_accent</item>
+        <item name="colorOnPrimary">@color/brand_accent_on</item>
+        <item name="colorPrimaryContainer">@color/mobile_surface</item>
+        <item name="colorOnPrimaryContainer">@color/mobile_text_primary</item>
+        <item name="colorSecondary">@color/brand_accent</item>
+        <item name="colorOnSecondary">@color/brand_accent_on</item>
+        <item name="colorSecondaryContainer">@color/mobile_chip_background</item>
+        <item name="colorOnSecondaryContainer">@color/mobile_text_primary</item>
+        <item name="colorSurface">@color/mobile_surface</item>
+        <item name="colorOnSurface">@color/mobile_text_primary</item>
+        <item name="colorSurfaceVariant">@color/mobile_chip_background</item>
+        <item name="colorOnSurfaceVariant">@color/mobile_text_secondary</item>
+        <item name="colorOnBackground">@color/mobile_text_primary</item>
         <item name="colorPrimaryDark">@color/brand_primary_dark</item>
         <item name="colorAccent">@color/brand_accent</item>
+        <item name="android:statusBarColor">@color/brand_primary_dark</item>
+        <!-- Rounded rectangles instead of M3's fully rounded (pill) small components. -->
+        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.SmarterTube.Small</item>
         <item name="android:windowBackground">@color/brand_primary</item>
         <item name="android:colorBackground">@color/brand_primary</item>
+    </style>
+
+    <style name="ShapeAppearance.SmarterTube.Small" parent="ShapeAppearance.Material3.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">8dp</item>
     </style>
 
     <!-- Splash for pre-API-31 devices: the launcher activity opens with this theme so the

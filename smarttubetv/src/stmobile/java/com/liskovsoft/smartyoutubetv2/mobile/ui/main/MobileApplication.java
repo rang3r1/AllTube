@@ -235,6 +235,9 @@ public class MobileApplication extends MainApplication {
                 && MobilePlaybackActivity.class.getName().equals(target.getClassName())
                 && !PlaybackPresenter.instance(this).isInPipMode()) {
             intent.removeFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            // A video opened from a screen above the player (channel opened in the player) reuses
+            // that player instead of stacking a second one that shares the same presenter.
+            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             mResumedActivity.startActivity(intent);
             return;
         }
