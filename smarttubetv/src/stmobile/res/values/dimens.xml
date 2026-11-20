@@ -20,4 +20,6 @@
         of the video, YouTube-style.
     -->
     <dimen name="lb_playback_controls_padding_bottom">4dp</dimen>
+    <!-- Loading placeholder card thumbnail -->
+    <dimen name="mobile_skeleton_thumb_height">200dp</dimen>
 </resources>

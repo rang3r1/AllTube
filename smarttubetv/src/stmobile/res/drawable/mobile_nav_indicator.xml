@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Active tab marker behind the bottom-nav icon (Material 3 style, rounded rectangle). -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <corners android:radius="10dp" />
+    <solid android:color="@color/mobile_nav_indicator" />
+</shape>

@@ -13,6 +13,7 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
+import com.liskovsoft.smartyoutubetv2.mobile.ui.base.Motion;
 import com.liskovsoft.smartyoutubetv2.tv.R;
 
 /**
@@ -51,6 +52,7 @@ final class SwipeGestures {
     private MotionEvent mDown;
     private boolean mVolume;
     private float mStartLevel;
+    private boolean mAtLimit; // haptic tick once when the level hits 0 % or 100 %
     private int mAreaHeight;
 
     /** Returns null if the indicator isn't in the player layout. */
@@ -168,6 +170,11 @@ final class SwipeGestures {
 
     private void applyLevel(float level) {
         level = Math.max(0f, Math.min(1f, level));
+        boolean atLimit = level <= 0f || level >= 1f;
+        if (atLimit && !mAtLimit) {
+            Motion.tick(mIndicator);
+        }
+        mAtLimit = atLimit;
         if (mVolume) {
             if (mAudio != null && !mAudio.isVolumeFixed()) {
                 int max = mAudio.getStreamMaxVolume(AudioManager.STREAM_MUSIC);

@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.liskovsoft.smartyoutubetv2.common.app.models.data.Video;
 import com.liskovsoft.smartyoutubetv2.mobile.ui.browse.VideoCardAdapter;
+import com.liskovsoft.smartyoutubetv2.mobile.ui.base.Motion;
 import com.liskovsoft.smartyoutubetv2.tv.R;
 
 import java.util.ArrayList;
@@ -188,6 +189,7 @@ public class UpNextRowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         VideoCardAdapter.bindWatchedBar(h.progress, h.duration, video);
 
         h.itemView.setOnClickListener(v -> {
+            Motion.rememberLaunch(v); // the player grows out of this card
             if (mClick != null) {
                 mClick.onVideo(video);
             }

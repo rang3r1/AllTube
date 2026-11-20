@@ -2,6 +2,7 @@
 <!-- Compact up-next row (YouTube-style): small 16:9 thumbnail left, title + meta right. -->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:stateListAnimator="@animator/mobile_press_scale"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"

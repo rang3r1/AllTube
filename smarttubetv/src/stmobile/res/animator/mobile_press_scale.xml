@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Cards and buttons give way slightly under the finger (API 21+, ignored below). -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_pressed="true">
+        <set>
+            <objectAnimator android:propertyName="scaleX" android:valueTo="0.96" android:duration="90" android:valueType="floatType" />
+            <objectAnimator android:propertyName="scaleY" android:valueTo="0.96" android:duration="90" android:valueType="floatType" />
+        </set>
+    </item>
+    <item>
+        <set>
+            <objectAnimator android:propertyName="scaleX" android:valueTo="1" android:duration="180" android:valueType="floatType" />
+            <objectAnimator android:propertyName="scaleY" android:valueTo="1" android:duration="180" android:valueType="floatType" />
+        </set>
+    </item>
+</selector>

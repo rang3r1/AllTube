@@ -121,6 +121,8 @@ public class MobilePlaybackActivity extends PlaybackActivity {
 
         getViewManager().removeTop(this);
         finishWithoutParent();
+        // The player shrinks away; the screen below stays where it is.
+        overridePendingTransition(R.anim.mobile_stay, R.anim.mobile_player_exit);
         if (mMobileFragment != null) {
             mMobileFragment.onFinish();
         }

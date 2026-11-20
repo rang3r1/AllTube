@@ -25,11 +25,63 @@
         <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.SmarterTube.Small</item>
         <item name="android:windowBackground">@color/brand_primary</item>
         <item name="android:colorBackground">@color/brand_primary</item>
+        <!-- Snackbar (inverse roles): otherwise its action falls back to the M3 baseline purple. -->
+        <item name="colorPrimaryInverse">@color/brand_accent</item>
+        <item name="colorSurfaceInverse">@color/mobile_text_primary</item>
+        <item name="colorOnSurfaceInverse">@color/mobile_background</item>
+        <!-- No amber tint on raised surfaces (bottom sheets) from the primary-colored overlay. -->
+        <item name="elevationOverlayEnabled">false</item>
+        <!-- Screen changes slide and fade instead of cutting. -->
+        <item name="android:windowAnimationStyle">@style/Animation.SmarterTube.Activity</item>
+        <!-- Every plain Button in the phone screens gets the filled brand look. -->
+        <item name="android:buttonStyle">@style/Widget.SmarterTube.Button</item>
+        <item name="android:borderlessButtonStyle">@style/Widget.SmarterTube.Button.Text</item>
     </style>
 
     <style name="ShapeAppearance.SmarterTube.Small" parent="ShapeAppearance.Material3.SmallComponent">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">8dp</item>
+    </style>
+
+    <style name="Animation.SmarterTube.Activity" parent="@android:style/Animation.Activity">
+        <item name="android:activityOpenEnterAnimation">@anim/mobile_open_enter</item>
+        <item name="android:activityOpenExitAnimation">@anim/mobile_open_exit</item>
+        <item name="android:activityCloseEnterAnimation">@anim/mobile_close_enter</item>
+        <item name="android:activityCloseExitAnimation">@anim/mobile_close_exit</item>
+    </style>
+
+    <style name="Animation.SmarterTube.Panel" parent="@android:style/Animation.Activity">
+        <item name="android:activityOpenEnterAnimation">@anim/mobile_panel_enter</item>
+        <item name="android:activityOpenExitAnimation">@anim/mobile_stay</item>
+        <item name="android:activityCloseEnterAnimation">@anim/mobile_stay</item>
+        <item name="android:activityCloseExitAnimation">@anim/mobile_panel_exit</item>
+    </style>
+
+    <!-- Buttons: rounded rectangle (12dp), ripple, gives way when pressed. No pill shape. -->
+    <style name="Widget.SmarterTube.Button" parent="@android:style/Widget.Button">
+        <item name="android:background">@drawable/mobile_button_filled</item>
+        <item name="android:textColor">@color/brand_accent_on</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:minWidth">88dp</item>
+        <item name="android:paddingLeft">24dp</item>
+        <item name="android:paddingRight">24dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:stateListAnimator">@animator/mobile_press_scale</item>
+    </style>
+
+    <!-- Secondary action (retry, empty states): quiet surface color instead of amber. -->
+    <style name="Widget.SmarterTube.Button.Tonal">
+        <item name="android:background">@drawable/mobile_button_tonal</item>
+        <item name="android:textColor">@color/mobile_text_primary</item>
+    </style>
+
+    <!-- Text-only action. -->
+    <style name="Widget.SmarterTube.Button.Text">
+        <item name="android:background">@drawable/mobile_button_text</item>
+        <item name="android:textColor">@color/mobile_text_primary</item>
     </style>
 
     <!-- Splash for pre-API-31 devices: the launcher activity opens with this theme so the
@@ -54,5 +106,6 @@
     <style name="Theme.SmarterTube.Mobile.TranslucentPanel">
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowAnimationStyle">@style/Animation.SmarterTube.Panel</item>
     </style>
 </resources>

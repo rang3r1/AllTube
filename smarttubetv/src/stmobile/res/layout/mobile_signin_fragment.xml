@@ -71,11 +71,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
             android:minHeight="52dp"
-            android:backgroundTint="@color/mobile_accent"
-            android:textColor="@color/brand_accent_on"
-            android:textAllCaps="false"
             android:textSize="16sp"
-            android:textStyle="bold"
             android:text="@string/mobile_signin_continue" />
 
         <!-- Shown after the user has tapped Continue and may have completed sign-in
@@ -146,6 +142,7 @@
 
             <Button
                 android:id="@+id/signin_retry_button"
+            style="@style/Widget.SmarterTube.Button.Tonal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"

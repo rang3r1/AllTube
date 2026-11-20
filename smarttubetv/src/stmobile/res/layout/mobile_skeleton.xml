@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Loading placeholder shown instead of the spinner while a screen has no content yet.
+     Pulsed by Motion.showLoading(). Hidden from screen readers (the spinner never announced either). -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/skeleton"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/mobile_background"
+    android:importantForAccessibility="noHideDescendants"
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:visibility="gone">
+
+    <include layout="@layout/mobile_skeleton_card" />
+    <include layout="@layout/mobile_skeleton_card" />
+    <include layout="@layout/mobile_skeleton_card" />
+</LinearLayout>
